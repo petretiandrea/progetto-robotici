@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="swarm_gen" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="swarm_gen" TARGET_NAME="swarm_gen" CONFIG_NAME="Default-Remote Host" RUN_TARGET_PROJECT_NAME="swarm_gen" RUN_TARGET_NAME="swarm_gen">
+    <envs>
+      <env name="DISPLAY" value="localhost:10.0" />
+    </envs>
+    <method v="2">
+      <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+    </method>
+  </configuration>
+</component>
