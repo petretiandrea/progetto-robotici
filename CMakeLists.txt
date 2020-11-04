@@ -34,12 +34,13 @@ link_directories(${ARGOS_LIBRARY_DIRS})
 # -- add subdir for each module
 add_subdirectory(loop-functions)
 add_subdirectory(controllers)
+add_subdirectory(genetic)
 
 link_directories(
         ${CMAKE_BUILD_DIR}/build/loop-functions/evolution
 )
 
-add_executable(swarm_gen main.cpp controllers/fake/fake_controller.h utility.h)
+add_executable(swarm_gen main.cpp controllers/fake/fake_controller.h genetic/main.cpp)
 
 target_link_libraries(swarm_gen
         ${GALIB_LIBRARIES}

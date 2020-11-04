@@ -83,14 +83,14 @@
   </media>
 
   <visualization>
-    <qt-opengl>
+    <!--<qt-opengl>
       <camera>
         <placements>
           <placement index="0" position="-7.5,-7.5,10" look_at="0,0,0" up="0.5,0.5,0" lens_focal_length="65"/>
           <placement index="1" position="-0.26,-10.57,11.3" look_at="-0.2681,-9.927,10.532" up="0,0.76,0.64" lens_focal_length="65"/>
         </placements>
       </camera>
-    </qt-opengl>
+    </qt-opengl>-->
   </visualization>
 
 </argos-configuration>
