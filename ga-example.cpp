@@ -2,8 +2,6 @@
 #include <argos3/core/simulator/simulator.h>
 #include <argos3/core/simulator/loop_functions.h>
 #include <loop-functions/evolution/evolution_loop.h>
-#include <argos3/core/wrappers/lua/lua_controller.h>
-#include "controllers/rbn_controller.h"
 
 #include <ga/ga.h>
 #include <ga/GAAllele.h>

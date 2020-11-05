@@ -6,7 +6,12 @@
 namespace constants {
     /* Genetic algorithm constants */
     extern const int N_TRIAL = 2; // number of experiment for each individual
-    extern const int POPULATION = 50;
+    extern const int POPULATION = 2;
+    extern const int GENERATION = 1;
+    extern const float PROB_MUTATION = 0.05f;
+    extern const float PROB_CROSSOVER = 0.7f;
+    extern const int ELITISM_FRACTION = 5;
+    extern const int REPLACEMENT = (int)(POPULATION - (POPULATION / (float)ELITISM_FRACTION));
 
     /* Environment constants */
     extern const int N_FOOTBOT = 50;

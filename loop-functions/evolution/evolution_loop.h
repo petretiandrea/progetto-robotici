@@ -9,6 +9,10 @@
 #include <argos3/core/simulator/loop_functions.h>
 #include <argos3/plugins/robots/foot-bot/simulator/footbot_entity.h>
 #include <controllers/fake/fake_controller.h>
+#include <controllers/rbn-controller/lua-wrapper/LuaBoolNetController.h>
+#include <ga/ga.h>
+#include <ga/GA1DArrayGenome.h>
+#include <ga/GA1DArrayGenome.C>
 #include "Circle.h"
 
 using namespace argos;
@@ -32,6 +36,10 @@ public:
      */
     void PrepareForTrial(int nTrial);
 
+    void ConfigureFromGenome(const GA1DArrayGenome<bool>& genome);
+
+    double CalculatePerformance();
+
     void Reset() override;
 
 private:
@@ -44,10 +52,9 @@ private:
     CRandom::CRNG* randomGenerator;
     std::vector<Circle> blackCircles;
     std::vector<CFootBotEntity*> bots;
-    std::vector<FakeController*> controllers;
+    std::vector<LuaBoolNetController*> controllers;
 
 private:
-    double CalculatePerformance();
     bool CheckCollision(CVector3& position, const std::vector<SInitSetup>& botLocations);
     CVector3 GenerateLocationWithoutCollision(int maxAttempts, const std::vector<SInitSetup>& botLocations);
     bool IsInsideCircles(const CVector2& point);

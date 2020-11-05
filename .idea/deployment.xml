@@ -2,6 +2,13 @@
 <project version="4">
   <component name="PublishConfigData" remoteFilesAllowedToDisappearOnAutoupload="false">
     <serverData>
+      <paths name="Remote GDB Server (2a824820-a1e9-4b0d-bd53-2b37b98ca7ba)">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
       <paths name="Remote Host (c062144e-76e4-4e01-afdb-cd70f6b4af0a)">
         <serverdata>
           <mappings>

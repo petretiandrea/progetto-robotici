@@ -32,23 +32,8 @@ include_directories(${CMAKE_SOURCE_DIR} ${ARGOS_INCLUDE_DIRS} ${GSL_INCLUDE_DIR}
 link_directories(${ARGOS_LIBRARY_DIRS})
 
 # -- add subdir for each module
+add_subdirectory(utility)
 add_subdirectory(loop-functions)
 add_subdirectory(controllers)
 add_subdirectory(genetic)
-
-link_directories(
-        ${CMAKE_BUILD_DIR}/build/loop-functions/evolution
-)
-
-add_executable(swarm_gen main.cpp controllers/fake/fake_controller.h genetic/main.cpp)
-
-target_link_libraries(swarm_gen
-        ${GALIB_LIBRARIES}
-        evolution_loop
-        footbot_fake
-        argos3core_simulator
-        argos3plugin_simulator_dynamics2d
-        argos3plugin_simulator_entities
-        argos3plugin_simulator_footbot
-        argos3plugin_simulator_genericrobot
-        argos3plugin_simulator_media)
+add_subdirectory(tests)

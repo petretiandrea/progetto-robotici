@@ -32,16 +32,16 @@ void EvolutionLoop::Init(TConfigurationNode &t_tree) {
 
     /*
      * TODO: when externally is called reset on simulator, the RNG of argos is reset, this spawn robots always at the same position.
-     * Actually workaround is create another generator using the same seed of argos
+     * Actual workaround: create another generator using the same seed of argos
      */
     CRandom::CreateCategory("myrand", CRandom::GetSeedOf("argos"));
     randomGenerator = CRandom::CreateRNG("myrand");
 
     // create robots
     for(int i = 0; i < footbotNumber; i++) {
-        auto bot = new CFootBotEntity("fb_" + std::to_string(i), "fake");
+        auto bot = new CFootBotEntity("fb_" + std::to_string(i), "clua");
         bots.push_back(bot);
-        controllers.push_back(&dynamic_cast<FakeController&>(bot->GetControllableEntity().GetController()));
+        controllers.push_back(&dynamic_cast<LuaBoolNetController&>(bot->GetControllableEntity().GetController()));
         AddEntity(*bot);
     }
 }
@@ -64,7 +64,6 @@ void EvolutionLoop::PrepareForTrial(int nTrial) {
             CVector3 position = GenerateLocationWithoutCollision(constants::MAX_ATTEMPTS_LOCATION_SPAWN, botLocations);
             spawnLocation.Position.Set(position.GetX(), position.GetY(), position.GetZ());
             botLocations.push_back(spawnLocation);
-            std::cout << spawnLocation.Position.GetX() << "  " << spawnLocation.Position.GetY() << std::endl;
             if(!MoveEntity(bot->GetEmbodiedEntity(), spawnLocation.Position, spawnLocation.Orientation, false)) {
                 std::cerr << "Error for bot: " << bot->GetId() << " on trial: " << nTrial << " reason: " << " cannot move entity " << std::endl;
             }
@@ -148,6 +147,12 @@ CColor EvolutionLoop::GetFloorColor(const CVector2 &c_pos_on_floor) {
 
 bool EvolutionLoop::IsInsideCircles(const CVector2& point) {
     return std::any_of(blackCircles.begin(), blackCircles.end(), [point](Circle& circle) { return circle.containsPoint(point); });
+}
+
+void EvolutionLoop::ConfigureFromGenome(const GA1DArrayGenome<bool>& genome) {
+    for(auto & controller : controllers) {
+        controller->UpdateFromGenome(genome.size(), genome);
+    }
 }
 
 /* Register function loop to argos */
