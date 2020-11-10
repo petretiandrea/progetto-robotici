@@ -1,14 +1,16 @@
 link_directories(
         ${CMAKE_BUILD_DIR}/build/loop-functions/evolution
-        ${CMAKE_BINARY_DIR}/controllers/fake
         ${CMAKE_BINARY_DIR}/controllers/rbn-controller
+        ${CMAKE_BINARY_DIR}/utility
 )
 
 if(GALIB_FOUND)
-    add_executable(swarm_evolve main.cpp)
+    add_subdirectory(parallel)
+
+    add_executable(swarm_evolve main.cpp BNGenome.h BNGenome.cpp Performance.h)
     target_link_libraries(swarm_evolve
             ${GALIB_LIBRARIES}
-            footbot_fake
+            utility
             rbn_controller
             evolution_loop
             argos3core_simulator)

@@ -3,34 +3,35 @@
 //
 
 #include "BooleanNetwork.h"
-#include <cmath>
-#include <utility/Utility.h>
 
-BooleanNetwork::BooleanNetwork(int n, int k, float bias, int inputNode, int outputNode, bool selfLoops) :
-    totalNodes(n),
-    inputForNode(k),
-    bias(bias),
-    inputNode(inputNode),
-    outputNode(outputNode),
-    rnd(123) { // TODO: pass seed to constructor
+using namespace fplus;
 
+BooleanNetwork* BooleanNetwork::CreateFromParams(int n,
+                                                 int k,
+                                                 float bias,
+                                                 int inputNode,
+                                                 int outputNode,
+                                                 newrandom::Random& rnd,
+                                                 bool selfLoops) {
     auto functionLength = pow(2, k);
-    booleanFunctions = Matrix<bool>(totalNodes, functionLength);
-    connectionMatrix = Matrix<int>();
+    auto initializer = BooleanNetwork::booleanFunctionsInitializer(&rnd, bias);
+    auto booleanFunctions = Matrix<bool>(n, functionLength).applyFunction([initializer](int row, int col, bool value) {
+        return initializer();
+    });
 
-    initialize();
+    auto connections = createRandomConnectionMatrix(rnd, n, k, selfLoops);
+    return new BooleanNetwork(connections, booleanFunctions, inputNode, outputNode);
 }
 
-void BooleanNetwork::initialize() {
-    booleanFunctions = booleanFunctions.applyFunction([this](int row, int col, bool value) {
-        return this->rnd.next() <= this->bias;
-    });
-    connectionMatrix = createRandomConnectionMatrix(totalNodes, inputForNode, false);
-    states = fillVector(false, totalNodes);
+BooleanNetwork::BooleanNetwork(Matrix<int>& connections, Matrix<bool>& booleanFunctions, int inputNode, int outputNode) :
+    connectionMatrix(connections),
+    booleanFunctions(booleanFunctions),
+    totalNodes(connections.getRows()) {
 
+    states = fwd::apply(numbers(0, totalNodes), fwd::transform([](int i) { return false; }));
     /* first N nodes are used for input */
-    inputNodes = fillVectorByFunction<int>(inputNode, [](int index) { return index; });
-    outputNodes = fillVectorByFunction<int>(outputNode, [this](int index) { return this->totalNodes - index - 1; });
+    inputNodes = fwd::apply(numbers(0, inputNode), fwd::identity());
+    outputNodes = fwd::apply(numbers(0, outputNode), fwd::transform([this](int index) { return this->totalNodes - index - 1; }));
 
     std::cout << booleanFunctions << std::endl;
     std::cout << connectionMatrix << std::endl;
@@ -40,29 +41,15 @@ void BooleanNetwork::initialize() {
 }
 
 void BooleanNetwork::forceInputValues(std::vector<bool> inputs) {
-    if(inputs.size() > inputNode) { cerr << "Forcing too inputs than declared " << endl; return; }
+    if(inputs.size() > getInputNodes()) { cerr << "Forcing too inputs than declared " << endl; return; }
     for(int i = 0; i < inputs.size(); i++) {
         this->states[inputNodes[i]] = inputs[i];
     }
 }
 
-Matrix<int> BooleanNetwork::createRandomConnectionMatrix(int totalNodes, int inputsForNode, bool selfLoop) {
-    std::vector<int> collection(totalNodes);
-    std::iota(collection.begin(), collection.end(), 0);
-
-    Matrix<int> connectionMatrix(totalNodes, inputForNode);
-
-    for(int i = 0; i < connectionMatrix.getRows(); i++) {
-        auto connections = extractNodeInputIndexes(i, collection, inputsForNode, selfLoop);
-        for(int j = 0; j < connections.size(); j++) connectionMatrix.put(i, j, connections[j]);
-    }
-    return connectionMatrix;
-}
-
-std::vector<int> BooleanNetwork::extractNodeInputIndexes(int nodeToLink, std::vector<int> nodeIndexes, int inputsForNode, bool selfLoop) {
-    // remove from considered node the inputNode if the self loop are not admitted
-    if(!selfLoop) nodeIndexes.erase(std::remove(nodeIndexes.begin(), nodeIndexes.end(), nodeToLink), nodeIndexes.end());
-    return strongrandom::extractFromCollection(rnd, nodeIndexes, inputsForNode);
+void BooleanNetwork::forceInputValue(int index, bool value) {
+    if(index >= getInputNodes()) { cerr << "Index of input is out of range " << endl; return; }
+    this->states[inputNodes[index]] = value;
 }
 
 void BooleanNetwork::update() {
@@ -80,14 +67,14 @@ bool BooleanNetwork::calculateNodeUpdate(int nodeIndex, const vector<bool>& oldS
 
     int sum = 0;
     for(int i = 0, state = inputValues[i]; i < connectionMatrix.getColumns(); i++, state = inputValues[i]) {
-        sum += boolToInt(state) * ((int) pow(2, i));
+        sum += utility::boolToInt(state) * ((int) pow(2, i));
     }
 
     return booleanFunctions.get(nodeIndex, sum);
 }
 
 std::vector<bool> BooleanNetwork::getOutputValues() {
-    std::vector<bool> output(outputNodes.size());
+    std::vector<bool> output(getOutputNodes());
     for(int i = 0; i < output.size(); i++) {
         output[i] = states[outputNodes[i]];
     }
@@ -96,6 +83,37 @@ std::vector<bool> BooleanNetwork::getOutputValues() {
 
 void BooleanNetwork::changeBooleanFunction(const Matrix<bool>& newBooleanFunctions) {
     this->booleanFunctions = Matrix<bool>(newBooleanFunctions);
-    cout << "Boolean function changed " << this->booleanFunctions << endl;
+//    cout << "Boolean function changed " << endl;
+//    cout << this->booleanFunctions << endl;
+}
+
+int BooleanNetwork::getInputNodes() const {
+    return inputNodes.size();
+}
+
+int BooleanNetwork::getOutputNodes() const {
+    return outputNodes.size();
+}
+
+Matrix<int> BooleanNetwork::createRandomConnectionMatrix(newrandom::Random& rnd, int totalNodes, int inputsForNode, bool selfLoop) {
+    Matrix<int> connectionMatrix(totalNodes, inputsForNode);
+    auto nodes = numbers(0, totalNodes);
+
+    // TODO: improve in functional way
+    for(int i = 0; i < connectionMatrix.getRows(); i++) {
+        auto connections = extractNodeInputIndexes(rnd, i, nodes, inputsForNode, selfLoop);
+        for(int j = 0; j < connections.size(); j++) connectionMatrix.put(i, j, connections[j]);
+    }
+    return connectionMatrix;
+}
+
+std::vector<int> BooleanNetwork::extractNodeInputIndexes(newrandom::Random& rnd, int nodeToLink, std::vector<int> nodeIndexes, int inputsForNode, bool selfLoop) {
+    // remove from considered node the inputNode if the self loop are not admitted
+    if(!selfLoop) nodeIndexes.erase(std::remove(nodeIndexes.begin(), nodeIndexes.end(), nodeToLink), nodeIndexes.end());
+    return utility::extractFromCollection(rnd, nodeIndexes, inputsForNode);
+}
+
+int BooleanNetwork::getFunctionLength() const {
+    return booleanFunctions.getColumns();
 }
 

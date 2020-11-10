@@ -62,9 +62,6 @@ template <class T> Matrix<T> operator*(const T &b, const Matrix<T>& a);
 template <class T> Matrix<T> operator/(const Matrix<T>& a, const T &b);
 template <class T> std::ostream& operator<<(std::ostream &flux, const Matrix<T>& m);
 
-#endif //SWARM_GEN_MATRIX_H
-
-
 template <class T>
 Matrix<T>::Matrix(int height, int width){
     this->height = height;
@@ -376,3 +373,5 @@ std::ostream& operator<<(std::ostream &flux, const Matrix<T>& m){
     m.print(flux);
     return flux;
 }
+
+#endif //SWARM_GEN_MATRIX_H

@@ -1,5 +1,7 @@
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 project(swarm_gen)
+
+set(CMAKE_CXX_STANDARD 14)
 
 # Set the path where CMake will find additional scripts
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
@@ -26,10 +28,27 @@ find_package(GSL REQUIRED)
 find_package(Lua53 REQUIRED)
 
 # Set ARGoS include dir
-include_directories(${CMAKE_SOURCE_DIR} ${ARGOS_INCLUDE_DIRS} ${GSL_INCLUDE_DIR} ${LUA_INCLUDE_DIR})
+include_directories(${CMAKE_SOURCE_DIR} ${ARGOS_INCLUDE_DIRS} ${GSL_INCLUDE_DIR} ${LUA_INCLUDE_DIR} ${FPLUS_INCLUDE_DIR})
 
 # Set ARGoS link dir
 link_directories(${ARGOS_LIBRARY_DIRS})
+
+include(ExternalProject)
+ExternalProject_Add(functional_plus
+        GIT_REPOSITORY https://github.com/Dobiasd/FunctionalPlus.git
+        GIT_TAG v0.2.10-p0
+
+        SOURCE_DIR "${CMAKE_BINARY_DIR}/thirdparty/fplus"
+
+        CONFIGURE_COMMAND ""
+        INSTALL_COMMAND ""
+
+        LOG_DOWNLOAD ON
+        LOG_BUILD ON
+        )
+
+set(FPLUS_INCLUDE_DIR ${CMAKE_BINARY_DIR}/thirdparty/fplus/include)
+include_directories(${FPLUS_INCLUDE_DIR})
 
 # -- add subdir for each module
 add_subdirectory(utility)
