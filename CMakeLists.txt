@@ -41,6 +41,7 @@ ExternalProject_Add(functional_plus
         SOURCE_DIR "${CMAKE_BINARY_DIR}/thirdparty/fplus"
 
         CONFIGURE_COMMAND ""
+        BUILD_COMMAND ""
         INSTALL_COMMAND ""
 
         LOG_DOWNLOAD ON
