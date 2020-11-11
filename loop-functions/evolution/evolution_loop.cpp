@@ -65,13 +65,13 @@ void EvolutionLoop::PrepareForTrial(int nTrial) {
         auto bot = bots[i];
 
         if(!MoveEntity(bot->GetEmbodiedEntity(), location.Position, location.Orientation, false)) {
-            std::cerr << "Error for bot: " << bot->GetId() << " on trial: " << nTrial << " reason: " << " cannot move entity " << std::endl;
+            //std::cerr << "Error for bot: " << bot->GetId() << " on trial: " << nTrial << " reason: " << " cannot move entity " << std::endl;
         }
     }
 }
 
 /**
- * Compute a vector of random location for a single bot
+ * Compute a vector of random location for each bot
  * @param nTrial number of current trial
  * @return A vector of random location
  */

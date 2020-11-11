@@ -9,7 +9,17 @@
 
 int main() {
 
-    performance::PerformanceLog logger("performance/", "");
+    ostringstream metainfo;
+    metainfo
+        << "_p" << constants::POPULATION
+        << "_g" << constants::GENERATION
+        << "_pM" << constants::PROB_MUTATION
+        << "_pC" << constants::PROB_CROSSOVER
+        << "_el" << constants::ELITISM_FRACTION
+        << "_bias" << constants::BIAS
+        << "_prox" << constants::PROXIMITY_SIGHT;
+
+    performance::PerformanceLog logger("performance/", metainfo.str().c_str());
     ParallelEvaluator evaluator(logger,
                                 constants::GENOME_SIZE,
                                 constants::POPULATION + constants::REPLACEMENT,

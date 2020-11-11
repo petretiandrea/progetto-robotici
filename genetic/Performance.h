@@ -20,15 +20,17 @@ namespace performance {
     public:
         PerformanceLog(const char* folder, const char* fileMetaInfo);
         void writePerformance(GAPopulation& population);
+        void saveBest(GAGenome& genome);
         void close();
 
     private:
-        void saveBestOfGeneration(int generation, GAGenome& genome);
+        void saveBestOfGeneration(int generation, const GAGenome& genome);
         string folder;
+        string metainfo;
         ofstream file;
     };
 
-    PerformanceLog::PerformanceLog(const char *folder, const char* fileMetaInfo) : folder(folder) {
+    PerformanceLog::PerformanceLog(const char *folder, const char* fileMetaInfo) : folder(folder), metainfo(fileMetaInfo) {
         time_t rawtime;
         struct tm * timeinfo;
         char buffer [80];
@@ -49,12 +51,13 @@ namespace performance {
                 << population.individual(i) << ";"
                 << endl << flush;
         }
+        // TODO: this provide the best or the best for current population?
         saveBestOfGeneration(population.geneticAlgorithm()->generation(), population.best(0));
     }
 
-    void PerformanceLog::saveBestOfGeneration(int generation, GAGenome &genome) {
+    void PerformanceLog::saveBestOfGeneration(int generation, const GAGenome &genome) {
         ofstream bestFile;
-        bestFile.open(string(folder) + "best_gen_" + to_string(generation) + ".csv");
+        bestFile.open(string(folder) + metainfo + "_best_gen_" + to_string(generation) + ".csv");
         bestFile << "score;genome;bn" << endl;
         bestFile << genome.score() << ";" << genome << endl << flush;
         bestFile.close();
@@ -63,6 +66,15 @@ namespace performance {
     void PerformanceLog::close() {
         file.flush();
         file.close();
+    }
+
+    void PerformanceLog::saveBest(GAGenome& genome) {
+        ofstream bestFile;
+        bestFile.open(string(folder) + metainfo + "_best_all.csv");
+        bestFile << "score;genome;bn" << endl;
+        cout << genome.score() << endl;
+        bestFile << genome.score() << ";" << genome << endl << flush;
+        bestFile.close();
     }
 
 }

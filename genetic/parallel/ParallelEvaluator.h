@@ -51,13 +51,16 @@ private:
     [[noreturn]] void launchSlaveArgos(int slaveId, int nTrials);
 
 private:
+    int basePopulation;
     SharedMemory* sharedMemory;
     std::vector<pid_t> slavePids;
 };
 
 void handleSlaveTermination(int slavePid);
 
-ParallelEvaluator::ParallelEvaluator(performance::PerformanceLog& log, int genomeSize, int population, int nTrials, int parallelism) : log(log) {
+ParallelEvaluator::ParallelEvaluator(performance::PerformanceLog& log, int genomeSize, int population, int nTrials, int parallelism) :
+    log(log),
+    basePopulation(population) {
 
     sharedMemory = new SharedMemory("shared_mem", genomeSize, population, parallelism);
 
@@ -74,7 +77,7 @@ ParallelEvaluator::ParallelEvaluator(performance::PerformanceLog& log, int genom
 
 void ParallelEvaluator::evaluatePopulation(GAPopulation &population) {
     cout << "Evaluating generation #" << population.geneticAlgorithm()->generation() << endl;
-
+    
     // load genome on shared memory
     for(int i = 0; i < population.size(); i++) {
         auto &boolGenome = dynamic_cast<GA1DBinaryStringGenome &>(population.individual(i));
@@ -93,23 +96,50 @@ void ParallelEvaluator::evaluatePopulation(GAPopulation &population) {
     cout << "Generation # " << population.geneticAlgorithm()->generation() << " completed!" << endl;
 }
 
+float best_score = 0;
+GAGenome* best_genome;
 
 void ParallelEvaluator::populationEvaluator(GAPopulation& population) {
     auto* evaluator = (ParallelEvaluator*)population.userData();
     evaluator->evaluatePopulation(population);
+
+    for(int i = 0; i < population.size(); i++) {
+        auto score = population.individual(i).score();
+        if(score > best_score) {
+            best_genome = &population.individual(i);
+            best_score = best_genome->score();
+            evaluator->log.saveBest(*best_genome);
+        }
+    }
+
     evaluator->log.writePerformance(population);
 }
 
 void ParallelEvaluator::prepareTaskSlave(GAPopulation& population) {
-    auto populationSlice = population.size() / parallelism();
-    auto populationOvers = population.size() % parallelism();
+    int populationToEvaluateOffset = 0;
+    int populationToEvaluate = population.size();
+
+    // TODO: workaround for prevent twice evaluation of genomes
+    if(population.geneticAlgorithm()->classID() == GAID::SteadyStateGA &&
+        population.size() == basePopulation) {
+        auto* steadyState = dynamic_cast<GASteadyStateGA*>(population.geneticAlgorithm());
+        
+        populationToEvaluateOffset = population.size() - steadyState->nReplacement() - 1;
+        if(populationToEvaluateOffset > 0) {
+            populationToEvaluate = steadyState->nReplacement();
+        }
+    }
+
+    auto populationSlice = populationToEvaluate / parallelism();
+    auto populationOvers = populationToEvaluate % parallelism();
 
     for(int i = 0; i < parallelism(); i++) {
-        auto populationIndexStart = (i * populationSlice);
+        auto populationIndexStart = (i * populationSlice) + populationToEvaluateOffset;
         // assign to last one the leftovers population
         auto size = (populationOvers > 0 && i == parallelism() - 1) ?
                 populationSlice + populationOvers :
                 populationSlice;
+        cout << "Slice " << populationIndexStart << " s " << size << endl;
         sharedMemory->SetSlice(i, populationIndexStart, size);
     }
 }
@@ -162,7 +192,7 @@ void ParallelEvaluator::waitSlaves() {
         //cout << "Slave " << slaveId << " started from " << slices[0] << endl;
 
         for(int i = slices[0]; i < slices[0] + slices[1]; i++) {
-            cout << "\tEvaluating genome " << i << endl;
+            //cout << "\tEvaluating genome " << i << endl;
             auto individual = sharedMemory->GetGenome(i);
             individual->userData(&experiment);
 

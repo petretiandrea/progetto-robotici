@@ -47,8 +47,8 @@ void BNController::ControlStep() {
         booleanNetwork->forceInputValue(i, proximityBooleans[i]);
     }
 
-    for(int i = proximityBooleans.size(); i < + proximityBooleans.size() + groundBooleans.size(); i++) {
-        booleanNetwork->forceInputValue(i, groundBooleans[i]);
+    for(int i = 0, offset = proximityBooleans.size(); i < groundBooleans.size(); i++) {
+        booleanNetwork->forceInputValue(i + offset, groundBooleans[i]);
     }
 
     booleanNetwork->update();

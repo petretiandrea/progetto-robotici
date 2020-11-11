@@ -3,6 +3,8 @@
 //
 
 #include "BooleanNetwork.h"
+// TODO: !!! Important the connection matrix is a full matrix, this implementation cannot handle
+// a different input number for node
 
 using namespace fplus;
 
@@ -66,8 +68,8 @@ bool BooleanNetwork::calculateNodeUpdate(int nodeIndex, const vector<bool>& oldS
     }
 
     int sum = 0;
-    for(int i = 0, state = inputValues[i]; i < connectionMatrix.getColumns(); i++, state = inputValues[i]) {
-        sum += utility::boolToInt(state) * ((int) pow(2, i));
+    for(int i = 0; i < connectionMatrix.getColumns(); i++) {
+        sum += utility::boolToInt(inputValues[i]) * ((int) pow(2, i));
     }
 
     return booleanFunctions.get(nodeIndex, sum);
@@ -99,7 +101,6 @@ Matrix<int> BooleanNetwork::createRandomConnectionMatrix(newrandom::Random& rnd,
     Matrix<int> connectionMatrix(totalNodes, inputsForNode);
     auto nodes = numbers(0, totalNodes);
 
-    // TODO: improve in functional way
     for(int i = 0; i < connectionMatrix.getRows(); i++) {
         auto connections = extractNodeInputIndexes(rnd, i, nodes, inputsForNode, selfLoop);
         for(int j = 0; j < connections.size(); j++) connectionMatrix.put(i, j, connections[j]);

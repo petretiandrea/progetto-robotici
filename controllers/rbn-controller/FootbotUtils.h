@@ -18,8 +18,7 @@ using namespace argos;
 namespace footbotutils {
 
     /*
-     * functional variant is more efficient than actual version
-     *
+     * functional variant is less efficient than actual version
      */
     vector<double> readProximityValues(const CCI_FootBotProximitySensor& proximitySensor, int groupSensor) {
         auto readings = proximitySensor.GetReadings();
@@ -27,7 +26,23 @@ namespace footbotutils {
         groupedValued.reserve(groupSensor);
         int groupRange = readings.size() / groupSensor;
         for(int i = 0; i < groupSensor; i++) {
-            /* group by max policy */
+            // sum policy
+            double sum = 0;
+            for(int j = 0; j < groupRange; j++) {
+                sum += readings[(i * groupRange) + j].Value;
+            }
+            groupedValued.push_back(sum);
+        }
+        return groupedValued;
+    }
+
+    /*vector<double> readProximityValues(const CCI_FootBotProximitySensor& proximitySensor, int groupSensor) {
+        auto readings = proximitySensor.GetReadings();
+        vector<double> groupedValued;
+        groupedValued.reserve(groupSensor);
+        int groupRange = readings.size() / groupSensor;
+        for(int i = 0; i < groupSensor; i++) {
+            // group by max policy
             double max = -1;
             for(int j = 0; j < groupRange; j++) {
                 double read = readings[(i * groupRange) + j].Value;
@@ -37,7 +52,7 @@ namespace footbotutils {
         }
 
         return groupedValued;
-    }
+    }*/
 
     vector<double> readMotorGroundValues(const CCI_FootBotMotorGroundSensor& groundSensor) {
         return fwd::apply(groundSensor.GetReadings(),
