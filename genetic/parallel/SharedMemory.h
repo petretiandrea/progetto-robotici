@@ -35,10 +35,10 @@ public:
     void SetGenome(int individual,
                    const GA1DBinaryStringGenome& genome);
 
-    double GetScore(int individual);
+    float GetScore(int individual);
 
     void SetScore(int individual,
-                  double score);
+                  float score);
 
     void SetSlice(int runnerId, int startIndex, int size);
     int* GetSlice(int runnerId);
@@ -75,12 +75,12 @@ SharedMemory::SharedMemory(const char *sharedMemoryFile, int genomeSize, int pop
      * Slices[] ...
      */
     memorySize = populationSize * (genomeSize * sizeof(short)) + // genomes
-            populationSize * (genomeSize * sizeof(double)) + // scores
+            populationSize * (genomeSize * sizeof(float)) + // scores
             slices * (2 * sizeof(int)); // slices
 
     ::ftruncate(sharedMemFD, memorySize);
 
-    sharedMem = static_cast<short*>(::mmap(
+    sharedMem = reinterpret_cast<short*>(::mmap(
             NULL,
             memorySize,
             PROT_READ | PROT_WRITE,
@@ -118,27 +118,27 @@ void SharedMemory::SetGenome(int individual, const GA1DBinaryStringGenome& genom
     }
 }
 
-double SharedMemory::GetScore(int individual) {
-    double* ptr = (double*) sharedMem + (populationSize * genomeSize);
+float SharedMemory::GetScore(int individual) {
+    float* ptr = (float*) (sharedMem + (populationSize * genomeSize));
     return ptr[individual];
 }
 
-void SharedMemory::SetScore(int individual, double score) {
-    double* ptr = (double*) sharedMem + (populationSize * genomeSize);
+void SharedMemory::SetScore(int individual, float score) {
+    float* ptr = (float*) (sharedMem + (populationSize * genomeSize));
     ptr[individual] = score;
 }
 
 void SharedMemory::SetSlice(int runnerId, int startIndex, int size) {
-    double* offsetGenomes = (double*) sharedMem + (populationSize * genomeSize);
-    int* ptr = (int*) offsetGenomes + (populationSize);
+    float* offsetGenomes = (float*) (sharedMem + (populationSize * genomeSize));
+    int* ptr = (int*) (offsetGenomes + populationSize);
     int baseAddr = runnerId * slices;
     ptr[baseAddr] = startIndex;
     ptr[baseAddr + 1] = size;
 }
 
 int* SharedMemory::GetSlice(int runnerId) {
-    double* offsetGenomes = (double*) sharedMem + (populationSize * genomeSize);
-    int* ptr = (int*) offsetGenomes + (populationSize);
+    float* offsetGenomes = (float*) (sharedMem + (populationSize * genomeSize));
+    int* ptr = (int*) (offsetGenomes + populationSize);
     int baseAddr = runnerId * slices;
 
     int* out = new int[2];

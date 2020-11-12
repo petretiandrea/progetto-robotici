@@ -61,6 +61,7 @@ void BNController::moveRobotByBooleans(CCI_DifferentialSteeringActuator& wheels,
 }
 
 void BNController::Reset() {
+    booleanNetwork->resetStates();
 }
 
 void BNController::Destroy() {

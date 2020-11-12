@@ -28,6 +28,15 @@
 using namespace std;
 using namespace argos;
 
+// useful for check if a genome is already evaluated.
+class EvaluatedHack : public GAGenome {
+public:
+    static bool isEvaluated(GAGenome* genome) {
+        auto a = (EvaluatedHack*)(genome);
+        return a->_evaluated;
+    }
+};
+
 class ParallelEvaluator {
 
 public:
@@ -51,7 +60,6 @@ private:
     [[noreturn]] void launchSlaveArgos(int slaveId, int nTrials);
 
 private:
-    int basePopulation;
     SharedMemory* sharedMemory;
     std::vector<pid_t> slavePids;
 };
@@ -59,8 +67,7 @@ private:
 void handleSlaveTermination(int slavePid);
 
 ParallelEvaluator::ParallelEvaluator(performance::PerformanceLog& log, int genomeSize, int population, int nTrials, int parallelism) :
-    log(log),
-    basePopulation(population) {
+    log(log) {
 
     sharedMemory = new SharedMemory("shared_mem", genomeSize, population, parallelism);
 
@@ -77,21 +84,25 @@ ParallelEvaluator::ParallelEvaluator(performance::PerformanceLog& log, int genom
 
 void ParallelEvaluator::evaluatePopulation(GAPopulation &population) {
     cout << "Evaluating generation #" << population.geneticAlgorithm()->generation() << endl;
-    
+
+    prepareTaskSlave(population);
+
     // load genome on shared memory
     for(int i = 0; i < population.size(); i++) {
         auto &boolGenome = dynamic_cast<GA1DBinaryStringGenome &>(population.individual(i));
         sharedMemory->SetGenome(i, boolGenome);
+        // this allow to prevent twice evaluation of a genome. (e.g. steady state)
+        sharedMemory->SetScore(i, EvaluatedHack::isEvaluated(&boolGenome) ? boolGenome.score() : -1);
     }
 
-    prepareTaskSlave(population);
     resumeSlaves();
     waitSlaves();
 
     // retrieve performance from shared memory
     for(int i = 0; i < population.size(); i++) {
         auto score = sharedMemory->GetScore(i);
-        population.individual(i).score((float) score);
+        //cout << "Retrieve from shared score of " << i << " is " << score << " eq " << genome->compare(population.individual(i)) << endl;
+        population.individual(i).score(score);
     }
     cout << "Generation # " << population.geneticAlgorithm()->generation() << " completed!" << endl;
 }
@@ -116,30 +127,15 @@ void ParallelEvaluator::populationEvaluator(GAPopulation& population) {
 }
 
 void ParallelEvaluator::prepareTaskSlave(GAPopulation& population) {
-    int populationToEvaluateOffset = 0;
-    int populationToEvaluate = population.size();
-
-    // TODO: workaround for prevent twice evaluation of genomes
-    if(population.geneticAlgorithm()->classID() == GAID::SteadyStateGA &&
-        population.size() == basePopulation) {
-        auto* steadyState = dynamic_cast<GASteadyStateGA*>(population.geneticAlgorithm());
-        
-        populationToEvaluateOffset = population.size() - steadyState->nReplacement() - 1;
-        if(populationToEvaluateOffset > 0) {
-            populationToEvaluate = steadyState->nReplacement();
-        }
-    }
-
-    auto populationSlice = populationToEvaluate / parallelism();
-    auto populationOvers = populationToEvaluate % parallelism();
+    auto populationSlice = population.size() / parallelism();
+    auto populationOvers = population.size() % parallelism();
 
     for(int i = 0; i < parallelism(); i++) {
-        auto populationIndexStart = (i * populationSlice) + populationToEvaluateOffset;
+        auto populationIndexStart = (i * populationSlice);
         // assign to last one the leftovers population
         auto size = (populationOvers > 0 && i == parallelism() - 1) ?
                 populationSlice + populationOvers :
                 populationSlice;
-        cout << "Slice " << populationIndexStart << " s " << size << endl;
         sharedMemory->SetSlice(i, populationIndexStart, size);
     }
 }
@@ -189,18 +185,20 @@ void ParallelEvaluator::waitSlaves() {
         //cout << "Slave " << slaveId << " waiting master..." << endl;
         ::raise(SIGSTOP);
         auto* slices = sharedMemory->GetSlice(slaveId);
-        //cout << "Slave " << slaveId << " started from " << slices[0] << endl;
+        //cout << "Slave " << slaveId << " started from " << slices[0] << " to " << slices[1] << endl;
 
         for(int i = slices[0]; i < slices[0] + slices[1]; i++) {
-            //cout << "\tEvaluating genome " << i << endl;
-            auto individual = sharedMemory->GetGenome(i);
-            individual->userData(&experiment);
+            auto needEvaluate = sharedMemory->GetScore(i) == -1;
+            if(needEvaluate) {
+                auto individual = sharedMemory->GetGenome(i);
+                individual->userData(&experiment);
 
-            auto performance = bngenome::genomeEvaluator(*individual);
+                auto performance = bngenome::genomeEvaluator(*individual);
+                //cout << "Score of " << i << " is " << performance << " of "<< *individual << endl;
+                sharedMemory->SetScore(i, performance);
 
-            sharedMemory->SetScore(i, performance);
-
-            delete individual;
+                delete individual;
+            }
         }
 
         delete[] slices;

@@ -118,3 +118,7 @@ int BooleanNetwork::getFunctionLength() const {
     return booleanFunctions.getColumns();
 }
 
+void BooleanNetwork::resetStates() {
+    states = fwd::apply(numbers(0, totalNodes), fwd::transform([](int i) { return false; }));
+}
+

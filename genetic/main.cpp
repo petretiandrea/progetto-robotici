@@ -15,7 +15,10 @@ using namespace std::chrono;
 #include <ga/GAAllele.h>
 #include <ga/GAAllele.C>
 
-static performance::PerformanceLog logger("performance/sequential/", "");
+static performance::PerformanceLog logger("performance/", "");
+
+float best_score = 0;
+GAGenome* best_genome;
 
 void evaluatePopulation(GAPopulation& population) {
 
@@ -23,6 +26,12 @@ void evaluatePopulation(GAPopulation& population) {
     for(int i = 0; i < population.size(); i++) {
         cout << "\tEvaluating genome " << i << endl;
         population.individual(i).evaluate();
+        float score = population.individual(i).score();
+        if(score > best_score) {
+            best_genome = &population.individual(i);
+            best_score = best_genome->score();
+            logger.saveBest(*best_genome);
+        }
     }
     cout << "Generation # " << population.geneticAlgorithm()->generation() << " completed!" << endl;
 
@@ -36,7 +45,7 @@ int main() {
     cSimulator.SetExperimentFileName("tests/ev-test.argos");
     cSimulator.LoadExperiment();
 
-    auto rnd = new newrandom::Random(constants::RANDOM_SEED);
+    auto rnd = newrandom::Random(constants::RANDOM_SEED);
 
     // setup genetic algo
     auto experiment = bngenome::Experiment {
@@ -48,7 +57,7 @@ int main() {
     experiment.loop->GenerateRandomSpawnLocation(constants::N_TRIAL);
 
     GA1DBinaryStringGenome genome1(constants::GENOME_SIZE, bngenome::genomeEvaluator, &experiment);
-    genome1.initializer(bngenome::genomeInitializer(constants::BIAS, rnd));
+    genome1.initializer(bngenome::genomeInitializer(constants::BIAS, &rnd));
 
     GAPopulation population(genome1);
     population.userData(&experiment);
@@ -57,7 +66,9 @@ int main() {
     //GARealGenome genome(8, allele, evaluate);
     GASteadyStateGA ga(population);
     ga.maximize();
+
     ga.populationSize(constants::POPULATION);
+    ga.nBestGenomes(0);
     ga.nReplacement(constants::REPLACEMENT);
     ga.nGenerations(constants::GENERATION);
     ga.pMutation(constants::PROB_MUTATION);

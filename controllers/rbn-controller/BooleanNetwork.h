@@ -59,6 +59,7 @@ public:
     int getInputNodes() const;
 
     void changeBooleanFunction(const Matrix<bool>& booleanFunctions);
+    void resetStates();
 
 private:
     static Matrix<int> createRandomConnectionMatrix(newrandom::Random& rnd, int totalNodes, int inputsForNode, bool selfLoop);

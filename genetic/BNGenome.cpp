@@ -40,9 +40,10 @@ float bngenome::genomeEvaluator(GAGenome& genome) {
         experiment.simulator->Execute();
 
         auto performance = experiment.loop->CalculatePerformance();
+        //cout << "Genome " << genome << " perf " << performance << endl;
         //std::cout << " performance: "<< performance << std::endl;
         performanceSum += performance;
     }
 
-    return (float) performanceSum / (double) experiment.nTrials;
+    return (float) (performanceSum / (double) experiment.nTrials);
 }

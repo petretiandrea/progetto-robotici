@@ -39,6 +39,7 @@ int main() {
     GASteadyStateGA ga(population);
     ga.maximize();
     ga.populationSize(constants::POPULATION);
+    ga.nBestGenomes(0);
     ga.nReplacement(constants::REPLACEMENT);
     ga.nGenerations(constants::GENERATION);
     ga.pMutation(constants::PROB_MUTATION);
