@@ -20,7 +20,6 @@ void BNController::Init(TConfigurationNode &t_node) {
         wheels = GetActuator<CCI_DifferentialSteeringActuator>("differential_steering");
         proximity = GetSensor<CCI_FootBotProximitySensor>("footbot_proximity");
         motorGround = GetSensor<CCI_FootBotMotorGroundSensor>("footbot_motor_ground");
-
     } catch(CARGoSException& ex) {
         THROW_ARGOSEXCEPTION_NESTED("Error initializing sensors/actuators", ex);
     }
@@ -33,6 +32,33 @@ void BNController::Init(TConfigurationNode &t_node) {
             INPUT_NODE,
             OUTPUT_NODE,
             rnd);
+
+    string networkFile;
+    GetNodeAttributeOrDefault(t_node, "network", networkFile, string(""));
+    if(!networkFile.empty()) LoadFromFile(networkFile);
+}
+
+// TODO: improve this
+void BNController::LoadFromFile(const string& filename){
+    std::ifstream file(filename, ios::in);
+    if(!file) { cerr << "Error opening network controller file" << endl; }
+
+    vector<string> csv;
+    string line, word;
+    getline(file, line); // skip first line header
+    while (getline(file, word, ';')) {
+        csv.push_back(word);
+    }
+
+    auto genome = csv[1];
+    auto functionLength = booleanNetwork->getFunctionLength();
+    Matrix<bool> booleanFunctions = Matrix<bool>(genome.size() / functionLength, functionLength);
+    for(int i = 0; i < genome.size() / functionLength; i++) {
+        for(int j = 0; j < functionLength; j++) {
+            booleanFunctions.put(i, j, genome[i * functionLength + j] != '0');
+        }
+    }
+    booleanNetwork->changeBooleanFunction(booleanFunctions);
 }
 
 void BNController::ControlStep() {

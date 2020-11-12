@@ -29,6 +29,7 @@ public:
 
 private:
     static void moveRobotByBooleans(CCI_DifferentialSteeringActuator& wheels, const vector<bool>& output, float speed);
+    void LoadFromFile(const string& filename);
 
 private:
     CCI_DifferentialSteeringActuator* wheels;
