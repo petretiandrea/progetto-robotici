@@ -3,6 +3,7 @@
 //
 
 #include "BooleanNetwork.h"
+#include <fplus-fix.h>
 // TODO: !!! Important the connection matrix is a full matrix, this implementation cannot handle
 // a different input number for node
 

@@ -28,6 +28,17 @@
           </mappings>
         </serverdata>
       </paths>
+      <paths name="lab (011bcd6e-6f22-4fe6-ac50-ed28c7972377)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/andrea/swarm-gen" local="$PROJECT_DIR$" />
+          </mappings>
+          <excludedPaths>
+            <excludedPath local="true" path="$PROJECT_DIR$/build" />
+            <excludedPath local="true" path="$PROJECT_DIR$/build-lab" />
+          </excludedPaths>
+        </serverdata>
+      </paths>
     </serverData>
   </component>
 </project>

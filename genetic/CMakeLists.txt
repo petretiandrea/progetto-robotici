@@ -6,13 +6,6 @@ link_directories(
 
 if(GALIB_FOUND)
     add_subdirectory(parallel)
-
-    add_executable(swarm_evolve main.cpp BNGenome.h BNGenome.cpp Performance.h)
-    target_link_libraries(swarm_evolve
-            ${GALIB_LIBRARIES}
-            utility
-            rbn_controller
-            evolution_loop
-            argos3core_simulator)
+    add_subdirectory(sequential)
 endif(GALIB_FOUND)
 

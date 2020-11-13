@@ -5,7 +5,6 @@
 #ifndef SWARM_GEN_PARALLELEVALUATOR_H
 #define SWARM_GEN_PARALLELEVALUATOR_H
 
-#include <fplus/fplus.hpp>
 #include <cstdio>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -119,11 +118,11 @@ void ParallelEvaluator::populationEvaluator(GAPopulation& population) {
         if(score > best_score) {
             best_genome = &population.individual(i);
             best_score = best_genome->score();
-            evaluator->log.saveBest(*best_genome);
+            evaluator->log.saveGenomeAsBest(*best_genome);
         }
     }
 
-    evaluator->log.writePerformance(population);
+    evaluator->log.saveGenerationPerformance(population);
 }
 
 void ParallelEvaluator::prepareTaskSlave(GAPopulation& population) {
@@ -170,7 +169,7 @@ void ParallelEvaluator::waitSlaves() {
 
     argos::CSimulator& simulator = argos::CSimulator::GetInstance();
     try {
-        simulator.SetExperimentFileName("tests/ev-test.argos"); //TODO:
+        simulator.SetExperimentFileName("genetic/experiment.argos"); //TODO:
         simulator.LoadExperiment();
     } catch (CARGoSException& ex) {
         cerr << "Failed to launch argos " << ex.what() << endl;

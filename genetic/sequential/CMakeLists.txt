@@ -5,9 +5,8 @@ link_directories(
 )
 
 if(GALIB_FOUND)
-    add_executable(swarm_evolve_parallel parallel.cpp ParallelEvaluator.h SharedMemory.h ../BNGenome.h ../BNGenome.cpp ../Performance.h)
-    target_link_libraries(swarm_evolve_parallel
-            rt
+    add_executable(swarm_evolve sequential.cpp ../BNGenome.h ../BNGenome.cpp ../Performance.h)
+    target_link_libraries(swarm_evolve
             ${GALIB_LIBRARIES}
             utility
             rbn_controller

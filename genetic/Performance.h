@@ -10,6 +10,7 @@
 #include <ga/GA1DBinStrGenome.h>
 #include <ga/GA1DArrayGenome.C>
 #include <iostream>
+#include <utility>
 
 using namespace std;
 
@@ -18,9 +19,10 @@ namespace performance {
     class PerformanceLog {
 
     public:
-        PerformanceLog(const char* folder, const char* fileMetaInfo);
-        void writePerformance(GAPopulation& population);
-        void saveBest(GAGenome& genome);
+        PerformanceLog(string folder, const string& fileMetaInfo);
+        void saveGenerationPerformance(GAPopulation& population);
+        void saveGenomeAsBest(GAGenome& genome);
+        void saveTrialsPerformance(int trials, double performance[]);
         void close();
 
     private:
@@ -30,21 +32,12 @@ namespace performance {
         ofstream file;
     };
 
-    PerformanceLog::PerformanceLog(const char *folder, const char* fileMetaInfo) : folder(folder), metainfo(fileMetaInfo) {
-        time_t rawtime;
-        struct tm * timeinfo;
-        char buffer [80];
-
-        time (&rawtime);
-        timeinfo = localtime (&rawtime);
-
-        strftime (buffer,80,"%m-%d_%H-%M",timeinfo  );
-
-        file.open(this->folder + string(buffer) + fileMetaInfo + ".csv");
+    PerformanceLog::PerformanceLog(string folder, const string& fileMetaInfo) : folder(std::move(folder)), metainfo(fileMetaInfo) {
+        file.open(this->folder + fileMetaInfo + ".csv");
         file << "generation;score;genome;bn" << endl << flush;
     }
 
-    void PerformanceLog::writePerformance(GAPopulation& population) {
+    void PerformanceLog::saveGenerationPerformance(GAPopulation& population) {
         for(int i = 0; i < population.size(); i++) {
             file << population.geneticAlgorithm()->generation() << ";"
                 << population.individual(i).score() << ";"
@@ -57,7 +50,7 @@ namespace performance {
 
     void PerformanceLog::saveBestOfGeneration(int generation, const GAGenome &genome) {
         ofstream bestFile;
-        bestFile.open(string(folder) + metainfo + "_best_gen_" + to_string(generation) + ".csv");
+        bestFile.open(folder + metainfo + "_best_gen_" + to_string(generation) + ".csv");
         bestFile << "score;genome;bn" << endl;
         bestFile << genome.score() << ";" << genome << endl << flush;
         bestFile.close();
@@ -68,13 +61,24 @@ namespace performance {
         file.close();
     }
 
-    void PerformanceLog::saveBest(GAGenome& genome) {
+    void PerformanceLog::saveGenomeAsBest(GAGenome& genome) {
         ofstream bestFile;
-        bestFile.open(string(folder) + metainfo + "_best_all.csv");
+        bestFile.open(folder + metainfo + "_best_all.csv");
         bestFile << "score;genome;bn" << endl;
         cout << genome.score() << endl;
         bestFile << genome.score() << ";" << genome << endl << flush;
         bestFile.close();
+    }
+
+    void PerformanceLog::saveTrialsPerformance(int trials, double performance[]) {
+        ofstream trialsPerformance;
+        trialsPerformance.open(folder + metainfo + ".csv");
+        trialsPerformance << "trial;performance" << endl;
+        for(int i = 0; i < trials; i++) {
+            trialsPerformance << i << ";" << performance[i] << endl;
+        }
+        trialsPerformance << flush;
+        trialsPerformance.close();
     }
 
 }

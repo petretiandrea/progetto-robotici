@@ -6,10 +6,10 @@
 #define SWARM_GEN_FOOTBOTUTILS_H
 
 #include <vector>
-#include <fplus/fplus.hpp>
 #include <argos3/plugins/robots/foot-bot/control_interface/ci_footbot_motor_ground_sensor.h>
 #include <argos3/plugins/robots/generic/control_interface/ci_differential_steering_actuator.h>
 #include <argos3/plugins/robots/foot-bot/control_interface/ci_footbot_proximity_sensor.h>
+#include <fplus-fix.h>
 
 using namespace std;
 using namespace fplus;

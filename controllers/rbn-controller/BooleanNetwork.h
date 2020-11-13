@@ -8,7 +8,6 @@
 #include <cmath>
 #include <vector>
 #include <utility/Matrix.h>
-#include <fplus/fplus.hpp>
 #include <utility/Utility.h>
 #include <utility/NewRandom.h>
 

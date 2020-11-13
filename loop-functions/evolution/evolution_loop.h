@@ -7,7 +7,6 @@
 
 /* ARGoS headers */
 #include <utility/Matrix.h>
-#include <fplus/fplus.hpp>
 #include <argos3/core/simulator/loop_functions.h>
 #include <argos3/plugins/robots/foot-bot/simulator/footbot_entity.h>
 #include <controllers/rbn-controller/BNController.h>

@@ -5,7 +5,6 @@
 #ifndef SWARM_GEN_BNGENOME_H
 #define SWARM_GEN_BNGENOME_H
 
-#include <fplus/fplus.hpp>
 #include <ga/GAGenome.h>
 #include <ga/GA1DBinStrGenome.h>
 #include <utility/NewRandom.h>

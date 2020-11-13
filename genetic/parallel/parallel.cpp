@@ -1,25 +1,15 @@
 //
 // Created by Andrea Petreti on 09/11/2020.
 //
-
-#include "ParallelEvaluator.h"
 #include <constants.h>
+#include <utility/Utility.h>
+#include "ParallelEvaluator.h"
 #include <genetic/BNGenome.h>
 #include <genetic/Performance.h>
 
 int main() {
 
-    ostringstream metainfo;
-    metainfo
-        << "_p" << constants::POPULATION
-        << "_g" << constants::GENERATION
-        << "_pM" << constants::PROB_MUTATION
-        << "_pC" << constants::PROB_CROSSOVER
-        << "_el" << constants::ELITISM_FRACTION
-        << "_bias" << constants::BIAS
-        << "_prox" << constants::PROXIMITY_SIGHT;
-
-    performance::PerformanceLog logger("performance/", metainfo.str().c_str());
+    performance::PerformanceLog logger("performance/", "evolve" + utility::createMetaInfoFilename());
     ParallelEvaluator evaluator(logger,
                                 constants::GENOME_SIZE,
                                 constants::POPULATION + constants::REPLACEMENT,
