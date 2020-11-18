@@ -64,7 +64,7 @@ void EvolutionLoop::PrepareForTrial(int nTrial) {
         auto location = initialSpawnLocations(nTrial, i);
         auto bot = bots[i];
 
-        if(!MoveEntity(bot->GetEmbodiedEntity(), location.Position, location.Orientation, false)) {
+        if(!MoveEntity(bot->GetEmbodiedEntity(), location.Position, location.Orientation, false, true)) {
             //std::cerr << "Error for bot: " << bot->GetId() << " on trial: " << nTrial << " reason: " << " cannot move entity " << std::endl;
         }
     }

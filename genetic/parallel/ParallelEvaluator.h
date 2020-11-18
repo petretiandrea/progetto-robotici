@@ -100,7 +100,7 @@ void ParallelEvaluator::evaluatePopulation(GAPopulation &population) {
     // retrieve performance from shared memory
     for(int i = 0; i < population.size(); i++) {
         auto score = sharedMemory->GetScore(i);
-        //cout << "Retrieve from shared score of " << i << " is " << score << " eq " << genome->compare(population.individual(i)) << endl;
+        //cout << "Retrieve from shared score of " << i << " is " << score << endl;
         population.individual(i).score(score);
     }
     cout << "Generation # " << population.geneticAlgorithm()->generation() << " completed!" << endl;

@@ -45,5 +45,6 @@ float bngenome::genomeEvaluator(GAGenome& genome) {
         performanceSum += performance;
     }
 
-    return (float) (performanceSum / (double) experiment.nTrials);
+    auto avg = (float) (performanceSum / (double) experiment.nTrials);
+    return avg;
 }

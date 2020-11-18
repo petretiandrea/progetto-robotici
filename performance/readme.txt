@@ -1,1 +1,0 @@
-this folders is used for save the performance of swarm

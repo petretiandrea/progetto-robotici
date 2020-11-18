@@ -11,6 +11,8 @@
 
 static performance::PerformanceLog logger("performance/", "test_" + utility::createMetaInfoFilename());
 
+#define RUN 30
+
 int main() {
 
     static argos::CSimulator& simulator = argos::CSimulator::GetInstance();
@@ -20,10 +22,10 @@ int main() {
 
     static EvolutionLoop* loop = dynamic_cast<EvolutionLoop*>(&simulator.GetLoopFunctions());
 
-    loop->GenerateRandomSpawnLocation(constants::N_TRIAL);
+    loop->GenerateRandomSpawnLocation(RUN);
 
-    double performance[constants::N_TRIAL];
-    for(int i = 0; i < constants::N_TRIAL; i++) {
+    double performance[RUN];
+    for(int i = 0; i < RUN; i++) {
 
         simulator.Reset();
         loop->PrepareForTrial(i);
@@ -35,7 +37,7 @@ int main() {
         performance[i] = score;
     }
 
-    logger.saveTrialsPerformance(constants::N_TRIAL, performance);
+    logger.saveTrialsPerformance(RUN, performance);
     logger.close();
 
     simulator.Destroy();
