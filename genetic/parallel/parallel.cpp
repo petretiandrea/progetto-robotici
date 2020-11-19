@@ -14,7 +14,7 @@ int main() {
                                 constants::GENOME_SIZE,
                                 constants::POPULATION + constants::REPLACEMENT,
                                 constants::N_TRIAL,
-                                8);
+                                15);
 
     auto rnd = newrandom::Random(constants::RANDOM_SEED);
 
