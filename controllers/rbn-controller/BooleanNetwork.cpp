@@ -9,32 +9,32 @@
 
 using namespace fplus;
 
-BooleanNetwork* BooleanNetwork::CreateFromParams(int n,
-                                                 int k,
-                                                 float bias,
-                                                 int inputNode,
-                                                 int outputNode,
-                                                 newrandom::Random& rnd,
-                                                 bool selfLoops) {
+BooleanNetwork::BooleanNetwork(int n, int k, float bias, int inputNode, int outputNode, int seed, bool selfLoops) {
+    auto rnd = newrandom::Random(seed);
     auto functionLength = pow(2, k);
     auto initializer = BooleanNetwork::booleanFunctionsInitializer(&rnd, bias);
-    auto booleanFunctions = Matrix<bool>(n, functionLength).applyFunction([initializer](int row, int col, bool value) {
-        return initializer();
-    });
 
+    auto boolFunctions = Matrix<bool>(n, functionLength).applyFunction([initializer](int row, int col, bool value) { return initializer(); });
     auto connections = createRandomConnectionMatrix(rnd, n, k, selfLoops);
-    return new BooleanNetwork(connections, booleanFunctions, inputNode, outputNode);
+
+    this->init(boolFunctions,
+               connections,
+               inputNode,
+               outputNode);
 }
 
-BooleanNetwork::BooleanNetwork(Matrix<int>& connections, Matrix<bool>& booleanFunctions, int inputNode, int outputNode) :
-    connectionMatrix(connections),
-    booleanFunctions(booleanFunctions),
-    totalNodes(connections.getRows()) {
+BooleanNetwork::BooleanNetwork(Matrix<bool>& booleanFunctions, Matrix<int>& connections, int inputNode, int outputNode) {
+    this->init(booleanFunctions, connections, inputNode, outputNode);
+}
 
-    states = fwd::apply(numbers(0, totalNodes), fwd::transform([](int i) { return false; }));
+void BooleanNetwork::init(Matrix<bool>& booleanFunctions, Matrix<int>& connections, int inputNode, int outputNode) {
+    this->connectionMatrix = connections;
+    this->booleanFunctions = booleanFunctions;
+
+    states = fwd::apply(numbers(0, getNumberOfNodes()), fwd::transform([](int i) { return false; }));
     /* first N nodes are used for input */
     inputNodes = fwd::apply(numbers(0, inputNode), fwd::identity());
-    outputNodes = fwd::apply(numbers(0, outputNode), fwd::transform([this](int index) { return this->totalNodes - index - 1; }));
+    outputNodes = fwd::apply(numbers(0, outputNode), fwd::transform([this](int index) { return this->getNumberOfNodes() - index - 1; }));
 
     std::cout << booleanFunctions << std::endl;
     std::cout << connectionMatrix << std::endl;
@@ -44,20 +44,20 @@ BooleanNetwork::BooleanNetwork(Matrix<int>& connections, Matrix<bool>& booleanFu
 }
 
 void BooleanNetwork::forceInputValues(std::vector<bool> inputs) {
-    if(inputs.size() > getInputNodes()) { cerr << "Forcing too inputs than declared " << endl; return; }
+    if(inputs.size() > getInputNodes().size()) { cerr << "Forcing too inputs than declared " << endl; return; }
     for(int i = 0; i < inputs.size(); i++) {
         this->states[inputNodes[i]] = inputs[i];
     }
 }
 
 void BooleanNetwork::forceInputValue(int index, bool value) {
-    if(index >= getInputNodes()) { cerr << "Index of input is out of range " << endl; return; }
+    if(index >= getInputNodes().size()) { cerr << "Index of input is out of range " << endl; return; }
     this->states[inputNodes[index]] = value;
 }
 
 void BooleanNetwork::update() {
     auto oldStates = vector<bool>(states); // this allow to update synchronously
-    for(int i = 0; i < totalNodes; i++) {
+    for(int i = 0; i < getNumberOfNodes(); i++) {
         states[i] = calculateNodeUpdate(i, oldStates);
     }
 }
@@ -77,7 +77,7 @@ bool BooleanNetwork::calculateNodeUpdate(int nodeIndex, const vector<bool>& oldS
 }
 
 std::vector<bool> BooleanNetwork::getOutputValues() {
-    std::vector<bool> output(getOutputNodes());
+    std::vector<bool> output(getOutputNodes().size());
     for(int i = 0; i < output.size(); i++) {
         output[i] = states[outputNodes[i]];
     }
@@ -88,14 +88,6 @@ void BooleanNetwork::changeBooleanFunction(const Matrix<bool>& newBooleanFunctio
     this->booleanFunctions = Matrix<bool>(newBooleanFunctions);
 //    cout << "Boolean function changed " << endl;
 //    cout << this->booleanFunctions << endl;
-}
-
-int BooleanNetwork::getInputNodes() const {
-    return inputNodes.size();
-}
-
-int BooleanNetwork::getOutputNodes() const {
-    return outputNodes.size();
 }
 
 Matrix<int> BooleanNetwork::createRandomConnectionMatrix(newrandom::Random& rnd, int totalNodes, int inputsForNode, bool selfLoop) {
@@ -115,11 +107,8 @@ std::vector<int> BooleanNetwork::extractNodeInputIndexes(newrandom::Random& rnd,
     return utility::extractFromCollection(rnd, nodeIndexes, inputsForNode);
 }
 
-int BooleanNetwork::getFunctionLength() const {
-    return booleanFunctions.getColumns();
-}
 
 void BooleanNetwork::resetStates() {
-    states = fwd::apply(numbers(0, totalNodes), fwd::transform([](int i) { return false; }));
+    states = fwd::apply(numbers(0, getNumberOfNodes()), fwd::transform([](int i) { return false; }));
 }
 

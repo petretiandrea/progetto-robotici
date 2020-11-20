@@ -11,7 +11,7 @@
 #include <argos3/plugins/robots/foot-bot/simulator/footbot_entity.h>
 #include <controllers/rbn-controller/BNController.h>
 #include <ga/GA1DBinStrGenome.h>
-#include "Circle.h"
+#include "utility/Circle.h"
 
 using namespace argos;
 using namespace std;

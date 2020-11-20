@@ -4,7 +4,7 @@ link_directories(
         ${CMAKE_BINARY_DIR}/thirdparty/fplus/include
 )
 
-add_library(evolution_loop SHARED evolution_loop.h evolution_loop.cpp Circle.h)
+add_library(evolution_loop SHARED evolution_loop.h evolution_loop.cpp)
 add_dependencies(evolution_loop functional_plus)
 
 target_link_libraries(evolution_loop

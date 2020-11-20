@@ -180,7 +180,7 @@ bool EvolutionLoop::IsInsideCircles(const CVector2& point) {
 }
 
 void EvolutionLoop::ConfigureFromGenome(const GA1DBinaryStringGenome& genome) {
-    auto functionLength = controllers.back()->associatedNetwork().getFunctionLength();
+    auto functionLength = pow(2, controllers.back()->associatedNetwork().getInputForNode());
 
     /* for loop = better performance than functional approach
      * auto genomeMatrix = fwd::apply(numbers(0, genome.size()), fwd::transform([genome](int i) { return (bool) genome.gene(i); }), fwd::split_every(8));

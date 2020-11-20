@@ -24,20 +24,13 @@ public:
      *
      * @param n
      * @param k
-     * @param booleanFunctionsInitializer
+     * @param bias
      * @param inputNode
      * @param outputNode
-     * @param rnd
+     * @param seed
      * @param selfLoops
-     * @return
      */
-    static BooleanNetwork* CreateFromParams(int n,
-                                            int k,
-                                            float bias,
-                                            int inputNode,
-                                            int outputNode,
-                                            newrandom::Random& rnd,
-                                            bool selfLoops = false);
+    BooleanNetwork(int n, int k, float bias, int inputNode, int outputNode, int seed, bool selfLoops = false);
 
     /**
      *
@@ -46,32 +39,70 @@ public:
      * @param inputNode
      * @param outputNode
      */
-    BooleanNetwork(Matrix<int>& connections, Matrix<bool>& booleanFunctions, int inputNode, int outputNode);
+    BooleanNetwork(Matrix<bool>& booleanFunctions, Matrix<int>& connections, int inputNode, int outputNode);
 
+    /** Update the input nodes of network */
     void forceInputValues(std::vector<bool> inputs);
+
+    /** Update the input node to specified value */
     void forceInputValue(int index, bool value);
+
+    /** It compute one step of network. */
     void update();
+
+    /** Get the values of output nodes. */
     vector<bool> getOutputValues();
 
-    int getFunctionLength() const;
-    int getOutputNodes() const;
-    int getInputNodes() const;
-
+    /** Set the boolean functions to specified value */
     void changeBooleanFunction(const Matrix<bool>& booleanFunctions);
+
+    /** Restore the states of nodes to initial state (0) */
     void resetStates();
+
+public:
+    /**
+     * Get the boolean functions of network as a matrix N x 2^K
+     */
+    inline const Matrix<bool>& getBooleanFunctions() { return booleanFunctions; }
+
+    /**
+     * Get the connections matrix of network as a matrix N x K
+     */
+    inline const Matrix<int>& getConnections() { return connectionMatrix; }
+
+    /**
+     * Get the nodes marked as input of network
+     */
+    inline const vector<int>& getInputNodes() { return inputNodes; }
+
+    /**
+     * Get the nodes marked as output of network
+     */
+    inline const vector<int>& getOutputNodes() { return outputNodes; }
+
+    /**
+     * Total number of nodes of network
+     */
+    inline int getNumberOfNodes() const { return connectionMatrix.getRows(); }
+
+    /**
+     * Get number of input for node (K)
+     */
+    inline int getInputForNode() const { return connectionMatrix.getColumns(); }
 
 private:
     static Matrix<int> createRandomConnectionMatrix(newrandom::Random& rnd, int totalNodes, int inputsForNode, bool selfLoop);
     static vector<int> extractNodeInputIndexes(newrandom::Random& rnd, int nodeToLink, vector<int> nodeIndexes, int inputsForNode, bool selfLoop);
 
 private:
-    int totalNodes;
     Matrix<bool> booleanFunctions;
     Matrix<int> connectionMatrix;
     vector<int> inputNodes;
     vector<int> outputNodes;
     vector<bool> states;
 
+    /** Initialize the network */
+    void init(Matrix<bool>& booleanFunctions, Matrix<int>& connections, int inputNode, int outputNode);
     bool calculateNodeUpdate(int nodeIndex, const vector<bool>& oldStates);
 };
 

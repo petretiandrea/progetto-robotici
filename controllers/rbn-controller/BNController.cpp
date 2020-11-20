@@ -24,14 +24,13 @@ void BNController::Init(TConfigurationNode &t_node) {
         THROW_ARGOSEXCEPTION_NESTED("Error initializing sensors/actuators", ex);
     }
 
-    auto rnd = newrandom::Random(constants::RANDOM_SEED);
-    booleanNetwork = BooleanNetwork::CreateFromParams(
+    booleanNetwork = new BooleanNetwork(
             constants::NODES,
             constants::INPUT_FOR_NODE,
             constants::BIAS,
             INPUT_NODE,
             OUTPUT_NODE,
-            rnd);
+            constants::RANDOM_SEED);
 
     string networkFile;
     GetNodeAttributeOrDefault(t_node, "network", networkFile, string(""));
@@ -51,7 +50,7 @@ void BNController::LoadFromFile(const string& filename){
     }
     cout << "csv " << csv << endl;
     auto genome = csv[1];
-    auto functionLength = booleanNetwork->getFunctionLength();
+    auto functionLength = pow(2, booleanNetwork->getInputForNode());
     Matrix<bool> booleanFunctions = Matrix<bool>(genome.size() / functionLength, functionLength);
     for(int i = 0; i < genome.size() / functionLength; i++) {
         for(int j = 0; j < functionLength; j++) {
