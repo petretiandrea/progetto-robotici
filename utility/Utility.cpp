@@ -43,6 +43,8 @@ string utility::createMetaInfoFilename() {
     strftime (buffer,80,"%m-%d_%H-%M",timeinfo);
     metainfo
             << string(buffer)
+            << "_nodes" << constants::NODES
+            << "_k" << constants::INPUT_FOR_NODE
             << "_p" << constants::POPULATION
             << "_g" << constants::GENERATION
             << "_pM" << constants::PROB_MUTATION

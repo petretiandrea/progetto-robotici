@@ -49,8 +49,9 @@ void BNController::LoadFromFile(const string& filename){
         csv.push_back(word);
     }
     cout << "csv " << csv << endl;
-    auto genome = csv[1];
+    auto genome = utility::trim(csv[1]);
     auto functionLength = pow(2, booleanNetwork->getInputForNode());
+    cout << genome.size() << endl;
     Matrix<bool> booleanFunctions = Matrix<bool>(genome.size() / functionLength, functionLength);
     for(int i = 0; i < genome.size() / functionLength; i++) {
         for(int j = 0; j < functionLength; j++) {

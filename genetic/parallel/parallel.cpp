@@ -9,7 +9,7 @@
 
 int main() {
 
-    performance::PerformanceLog logger("performance/", "evolve" + utility::createMetaInfoFilename());
+    performance::PerformanceLog logger("performance/", "evolve_" + utility::createMetaInfoFilename());
     ParallelEvaluator evaluator(logger,
                                 constants::GENOME_SIZE,
                                 constants::POPULATION + constants::REPLACEMENT,
