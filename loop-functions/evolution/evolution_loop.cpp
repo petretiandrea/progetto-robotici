@@ -10,7 +10,8 @@
 
 EvolutionLoop::EvolutionLoop() :
     initialSpawnLocations(),
-    randomGenerator(nullptr) {
+    randomGenerator(nullptr),
+    currentTrial(0) {
 }
 
 EvolutionLoop::~EvolutionLoop() = default;
@@ -60,14 +61,7 @@ void EvolutionLoop::GenerateRandomSpawnLocation(int nTrials) {
  * @param nTrial
  */
 void EvolutionLoop::PrepareForTrial(int nTrial) {
-    for(int i = 0; i < this->initialSpawnLocations.getColumns(); i++) {
-        auto location = initialSpawnLocations(nTrial, i);
-        auto bot = bots[i];
-
-        if(!MoveEntity(bot->GetEmbodiedEntity(), location.Position, location.Orientation, false, true)) {
-            //std::cerr << "Error for bot: " << bot->GetId() << " on trial: " << nTrial << " reason: " << " cannot move entity " << std::endl;
-        }
-    }
+    this->currentTrial = nTrial;
 }
 
 /**
@@ -166,6 +160,15 @@ double EvolutionLoop::CalculatePerformance() {
 
 void EvolutionLoop::Reset() {
     CLoopFunctions::Reset();
+    /* Spawn robot to current trial location */
+    for(int i = 0; i < this->initialSpawnLocations.getColumns(); i++) {
+        auto location = initialSpawnLocations(currentTrial, i);
+        auto bot = bots[i];
+
+        if(!MoveEntity(bot->GetEmbodiedEntity(), location.Position, location.Orientation, false, true)) {
+            //std::cerr << "Error for bot: " << bot->GetId() << " on trial: " << nTrial << " reason: " << " cannot move entity " << std::endl;
+        }
+    }
 }
 
 CColor EvolutionLoop::GetFloorColor(const CVector2 &c_pos_on_floor) {

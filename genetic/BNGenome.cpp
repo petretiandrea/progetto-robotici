@@ -34,8 +34,8 @@ float bngenome::genomeEvaluator(GAGenome& genome) {
          * 3. execute the simulation
          */
 
-        experiment.simulator->Reset();
         experiment.loop->PrepareForTrial(i);
+        experiment.simulator->Reset();
         experiment.loop->ConfigureFromGenome(boolGenome);
         experiment.simulator->Execute();
 

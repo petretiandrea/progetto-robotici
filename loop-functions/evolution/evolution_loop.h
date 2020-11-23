@@ -56,6 +56,7 @@ private:
     vector<Circle> blackCircles;
     vector<CFootBotEntity*> bots;
     vector<BNController*> controllers;
+    int currentTrial;
 
 private:
     bool CheckCollision(CVector3& position, const std::vector<SInitSetup>& botLocations);
