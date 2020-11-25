@@ -36,11 +36,11 @@ void BooleanNetwork::init(Matrix<bool>& booleanFunctions, Matrix<int>& connectio
     inputNodes = fwd::apply(numbers(0, inputNode), fwd::identity());
     outputNodes = fwd::apply(numbers(0, outputNode), fwd::transform([this](int index) { return this->getNumberOfNodes() - index - 1; }));
 
-    std::cout << booleanFunctions << std::endl;
+    /*std::cout << booleanFunctions << std::endl;
     std::cout << connectionMatrix << std::endl;
     cout << states << endl;
     cout << "Input nodes " << inputNodes << endl;
-    cout << "Output nodes " << outputNodes << endl;
+    cout << "Output nodes " << outputNodes << endl;*/
 }
 
 void BooleanNetwork::forceInputValues(std::vector<bool> inputs) {

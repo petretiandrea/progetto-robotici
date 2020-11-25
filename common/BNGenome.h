@@ -11,6 +11,8 @@
 #include <argos3/core/simulator/simulator.h>
 #include <loop-functions/evolution/evolution_loop.h>
 
+extern bool debug;
+
 namespace bngenome {
 
     typedef struct {
@@ -24,6 +26,7 @@ namespace bngenome {
 
     static function<void(GAGenome&)> functionInitializerCallback;
     static void initializer(GAGenome& genome) { functionInitializerCallback(genome); }
+
 }
 
 #endif //SWARM_GEN_BNGENOME_H

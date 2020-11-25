@@ -19,6 +19,7 @@ using namespace std;
 class EvolutionLoop : public CLoopFunctions {
 
 public:
+    void dumpPosition();
     EvolutionLoop();
     ~EvolutionLoop() override;
 

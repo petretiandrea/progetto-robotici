@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <sstream>
 
+
 template<typename T> std::vector<T> utility::extractFromCollection(newrandom::Random& rnd, std::vector<T> collection, int numberOfElements, bool allowRepetition) {
     std::vector<T> result;
     std::vector<T> toConsider(collection);

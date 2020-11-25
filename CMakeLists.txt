@@ -53,6 +53,7 @@ include_directories(${FPLUS_INCLUDE_DIR})
 
 # -- add subdir for each module
 add_subdirectory(utility)
+add_subdirectory(common)
 add_subdirectory(loop-functions)
 add_subdirectory(controllers)
 add_subdirectory(genetic)

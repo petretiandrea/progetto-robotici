@@ -12,7 +12,7 @@
       <paths name="Remote Host (c062144e-76e4-4e01-afdb-cd70f6b4af0a)">
         <serverdata>
           <mappings>
-            <mapping deploy="/home/andrea/swarm-gen" local="$PROJECT_DIR$" />
+            <mapping deploy="/home/argos/swarm-gen" local="$PROJECT_DIR$" />
           </mappings>
           <excludedPaths>
             <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug" />
@@ -31,7 +31,7 @@
       <paths name="lab (011bcd6e-6f22-4fe6-ac50-ed28c7972377)">
         <serverdata>
           <mappings>
-            <mapping deploy="/home/andrea/swarm-gen" local="$PROJECT_DIR$" />
+            <mapping deploy="/home/argos/swarm-gen" local="$PROJECT_DIR$" />
           </mappings>
           <excludedPaths>
             <excludedPath local="true" path="$PROJECT_DIR$/build" />

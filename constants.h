@@ -9,7 +9,7 @@ namespace constants {
     extern const int NODES = 50;
     extern const int INPUT_FOR_NODE = 3;
     extern const float BIAS = 0.21f;
-    extern const float PROXIMITY_SIGHT = 3.0f * 1.5f; // threshold or sight of proximity sensor (8 virtual sensor from 24 => 3.0 is the value)
+    extern const float PROXIMITY_SIGHT = 3.0f * 0.0f; // threshold or sight of proximity sensor (8 virtual sensor from 24 => 3.0 is the value)
     extern const float MOTOR_GROUND_BLACK_THRESHOLD = 0.1f; // threshold to consider ground as black.
     extern const float CONSTANT_SPEED_OUTPUT = 10.0f; // speed output
     extern const int RANDOM_SEED = 123;

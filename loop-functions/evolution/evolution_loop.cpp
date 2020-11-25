@@ -159,14 +159,13 @@ double EvolutionLoop::CalculatePerformance() {
 }
 
 void EvolutionLoop::Reset() {
-    CLoopFunctions::Reset();
     /* Spawn robot to current trial location */
     for(int i = 0; i < this->initialSpawnLocations.getColumns(); i++) {
         auto location = initialSpawnLocations(currentTrial, i);
         auto bot = bots[i];
 
         if(!MoveEntity(bot->GetEmbodiedEntity(), location.Position, location.Orientation, false, true)) {
-            //std::cerr << "Error for bot: " << bot->GetId() << " on trial: " << nTrial << " reason: " << " cannot move entity " << std::endl;
+            //std::cerr << "Error for bot: " << bot->GetId() << " on trial: " << currentTrial << " reason: " << " cannot move entity " << std::endl;
         }
     }
 }
@@ -183,7 +182,7 @@ bool EvolutionLoop::IsInsideCircles(const CVector2& point) {
 }
 
 void EvolutionLoop::ConfigureFromGenome(const GA1DBinaryStringGenome& genome) {
-    auto functionLength = pow(2, controllers.back()->associatedNetwork().getInputForNode());
+    auto functionLength = (int) pow(2, controllers.back()->associatedNetwork().getInputForNode());
 
     /* for loop = better performance than functional approach
      * auto genomeMatrix = fwd::apply(numbers(0, genome.size()), fwd::transform([genome](int i) { return (bool) genome.gene(i); }), fwd::split_every(8));
@@ -199,6 +198,16 @@ void EvolutionLoop::ConfigureFromGenome(const GA1DBinaryStringGenome& genome) {
     for(auto& controller : controllers) {
         controller->associatedNetwork().changeBooleanFunction(booleanFunctions);
     }
+}
+
+void EvolutionLoop::dumpPosition() {
+    CVector2 v;
+    cout << "Pos " << endl;
+    for(auto& bot : bots) {
+        bot->GetEmbodiedEntity().GetOriginAnchor().Position.ProjectOntoXY(v);
+        cout << v << endl;
+    }
+
 }
 
 /* Register function loop to argos */

@@ -94,12 +94,15 @@ private:
     static Matrix<int> createRandomConnectionMatrix(newrandom::Random& rnd, int totalNodes, int inputsForNode, bool selfLoop);
     static vector<int> extractNodeInputIndexes(newrandom::Random& rnd, int nodeToLink, vector<int> nodeIndexes, int inputsForNode, bool selfLoop);
 
+public:
+    vector<bool> states;
+
 private:
     Matrix<bool> booleanFunctions;
     Matrix<int> connectionMatrix;
     vector<int> inputNodes;
     vector<int> outputNodes;
-    vector<bool> states;
+
 
     /** Initialize the network */
     void init(Matrix<bool>& booleanFunctions, Matrix<int>& connections, int inputNode, int outputNode);

@@ -5,10 +5,11 @@ link_directories(
 )
 
 if(GALIB_FOUND)
-    add_executable(swarm_evolve sequential.cpp ../BNGenome.h ../BNGenome.cpp ../Performance.h)
+    add_executable(swarm_evolve sequential.cpp ../../common/BNGenome.h ../../common/BNGenome.cpp)
     target_link_libraries(swarm_evolve
             ${GALIB_LIBRARIES}
             utility
+            common
             rbn_controller
             evolution_loop
             argos3core_simulator)

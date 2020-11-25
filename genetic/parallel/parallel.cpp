@@ -3,13 +3,22 @@
 //
 #include <constants.h>
 #include <utility/Utility.h>
+#include <genetic/parallel/ParallelEvaluator.h>
+#include <common/BNGenome.h>
+#include <common/FileLogger.h>
+
+
+#include <argos3/core/simulator/simulator.h>
+#include <argos3/core/simulator/loop_functions.h>
+#include <loop-functions/evolution/evolution_loop.h>
+#include <ga/ga.h>
+#include <ga/GA1DBinStrGenome.h>
+#include <ga/GA1DArrayGenome.C>
 #include "ParallelEvaluator.h"
-#include <genetic/BNGenome.h>
-#include <genetic/Performance.h>
 
 int main() {
 
-    performance::PerformanceLog logger("performance/", "evolve_" + utility::createMetaInfoFilename());
+    performance::FileLogger logger("performance/", "evolve_" + utility::createMetaInfoFilename());
     ParallelEvaluator evaluator(logger,
                                 constants::GENOME_SIZE,
                                 constants::POPULATION + constants::REPLACEMENT,

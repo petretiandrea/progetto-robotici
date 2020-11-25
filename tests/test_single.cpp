@@ -6,10 +6,10 @@
 #include <loop-functions/evolution/evolution_loop.h>
 #include <chrono>
 #include <ga/ga.h>
-#include <genetic/Performance.h>
+#include <common/FileLogger.h>
 #include <utility/Utility.h>
 
-static performance::PerformanceLog logger("performance/", "test_" + utility::createMetaInfoFilename());
+static performance::FileLogger logger("performance/", "test_" + utility::createMetaInfoFilename());
 
 #define RUN 30
 
@@ -27,10 +27,10 @@ int main() {
     double performance[RUN];
     for(int i = 0; i < RUN; i++) {
 
-        simulator.Reset();
         loop->PrepareForTrial(i);
+        simulator.Reset();
+        simulator.Reset();
         simulator.Execute();
-        loop->CalculatePerformance();
 
         auto score = loop->CalculatePerformance();
         cout << "Performance " <<  score << endl;

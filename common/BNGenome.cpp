@@ -18,12 +18,15 @@ GAGenome::Initializer bngenome::genomeInitializer(float bias, newrandom::Random 
     return initializer;
 }
 
+bool debug = false;
 
 float bngenome::genomeEvaluator(GAGenome& genome) {
     auto& boolGenome = dynamic_cast<GA1DBinaryStringGenome&>(genome);
     auto& experiment = *static_cast<Experiment*>(boolGenome.userData());
 
     double performanceSum = 0;
+    experiment.loop->ConfigureFromGenome(boolGenome);
+
     for (int i = 0; i < experiment.nTrials; i++) {
         //cout << "\tStart trial "<< i << "...";
 
@@ -33,14 +36,11 @@ float bngenome::genomeEvaluator(GAGenome& genome) {
          * 4. configure all controllers from genome
          * 3. execute the simulation
          */
-
         experiment.loop->PrepareForTrial(i);
         experiment.simulator->Reset();
-        experiment.loop->ConfigureFromGenome(boolGenome);
+        experiment.simulator->Reset();
         experiment.simulator->Execute();
-
         auto performance = experiment.loop->CalculatePerformance();
-        //cout << "Genome " << genome << " perf " << performance << endl;
         //std::cout << " performance: "<< performance << std::endl;
         performanceSum += performance;
     }
