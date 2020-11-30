@@ -26,7 +26,6 @@ namespace bngenome {
 
     static function<void(GAGenome&)> functionInitializerCallback;
     static void initializer(GAGenome& genome) { functionInitializerCallback(genome); }
-
 }
 
 #endif //SWARM_GEN_BNGENOME_H

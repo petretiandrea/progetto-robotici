@@ -41,6 +41,7 @@ public:
     void PrepareForTrial(int nTrial);
 
     void ConfigureFromGenome(const GA1DBinaryStringGenome& genome);
+    void ConfigureFromGenome(const string& genome);
 
     double CalculatePerformance();
 

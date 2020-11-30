@@ -5,6 +5,7 @@
 #include "BNController.h"
 #include "FootbotUtils.h"
 #include <constants.h>
+#include <serializer/BooleanNetworkParser.h>
 
 #define INPUT_NODE 12
 #define OUTPUT_NODE 2
@@ -48,17 +49,13 @@ void BNController::LoadFromFile(const string& filename){
     while (getline(file, word, ';')) {
         csv.push_back(word);
     }
-    cout << "csv " << csv << endl;
     auto genome = utility::trim(csv[1]);
     auto functionLength = pow(2, booleanNetwork->getInputForNode());
-    cout << genome.size() << endl;
-    Matrix<bool> booleanFunctions = Matrix<bool>(genome.size() / functionLength, functionLength);
-    for(int i = 0; i < genome.size() / functionLength; i++) {
-        for(int j = 0; j < functionLength; j++) {
-            booleanFunctions.put(i, j, genome[i * functionLength + j] != '0');
-        }
-    }
-    booleanNetwork->changeBooleanFunction(booleanFunctions);
+
+    cout << "Parsing boolean function from csv " << csv << endl;
+
+    auto booleans = BooleanNetworkParser::booleanFunctionFromGenome(functionLength, genome);
+    booleanNetwork->changeBooleanFunction(booleans);
 }
 
 void BNController::ControlStep() {

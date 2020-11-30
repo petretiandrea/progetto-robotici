@@ -181,6 +181,20 @@ bool EvolutionLoop::IsInsideCircles(const CVector2& point) {
     return std::any_of(blackCircles.begin(), blackCircles.end(), [point](Circle& circle) { return circle.containsPoint(point); });
 }
 
+void EvolutionLoop::ConfigureFromGenome(const string& genome) {
+    auto functionLength = (int) pow(2, controllers.back()->associatedNetwork().getInputForNode());
+    Matrix<bool> booleanFunctions = Matrix<bool>(genome.size() / functionLength, functionLength);
+    for(int i = 0; i < genome.size() / functionLength; i++) {
+        for(int j = 0; j < functionLength; j++) {
+            booleanFunctions.put(i, j, genome[i * functionLength + j] != '0');
+        }
+    }
+
+    for(auto& controller : controllers) {
+        controller->associatedNetwork().changeBooleanFunction(booleanFunctions);
+    }
+}
+
 void EvolutionLoop::ConfigureFromGenome(const GA1DBinaryStringGenome& genome) {
     auto functionLength = (int) pow(2, controllers.back()->associatedNetwork().getInputForNode());
 

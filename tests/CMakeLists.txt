@@ -17,8 +17,10 @@ if(GALIB_FOUND)
 
     add_executable(swarm_test test_single.cpp)
     add_executable(swarm_viz visualize.cpp)
+    add_executable(swarm_compare compare.cpp)
 
     target_link_libraries(swarm_test ${DEPS})
     target_link_libraries(swarm_viz ${DEPS})
+    target_link_libraries(swarm_compare ${DEPS})
 
 endif(GALIB_FOUND)

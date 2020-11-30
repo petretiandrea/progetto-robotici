@@ -15,12 +15,12 @@ namespace constants {
     extern const int RANDOM_SEED = 123;
 
     /* Genetic algorithm constants */
-    extern const int N_TRIAL = 1; // number of experiment for each individual
+    extern const int N_TRIAL = 3; // number of experiment for each individual
     extern const int GENOME_SIZE = (int) (NODES * pow(2, INPUT_FOR_NODE)); // length of boolean function
     extern const int POPULATION = 100;
     extern const int GENERATION = 100;
-    extern const float PROB_MUTATION = 0.05f;
-    extern const float PROB_CROSSOVER = 0.0f;
+    extern const float PROB_MUTATION = 0.03f;
+    extern const float PROB_CROSSOVER = 0.1f;
     extern const int ELITISM_FRACTION = 5;
     extern const int REPLACEMENT = (int)(POPULATION - (POPULATION / (float)ELITISM_FRACTION));
 

@@ -20,6 +20,18 @@ class BooleanNetworkParser {
 
 public:
     static BooleanNetworkParser parser;
+
+    static Matrix<bool> booleanFunctionFromGenome(int functionLength, const string& genome) {
+        int genomeSize = genome.size();
+        Matrix<bool> booleanFunctions = Matrix<bool>(genomeSize / functionLength, functionLength);
+        for(int i = 0; i < genomeSize / functionLength; i++) {
+            for(int j = 0; j < functionLength; j++) {
+                booleanFunctions.put(i, j, genome[i * functionLength + j] != '0');
+            }
+        }
+        return booleanFunctions;
+    }
+
     void serialize(BooleanNetwork* network, const char* filename) {
         ofstream file;
         file.open(filename);

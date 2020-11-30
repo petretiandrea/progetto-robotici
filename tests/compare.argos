@@ -1,0 +1,95 @@
+<?xml version="1.0" ?>
+
+<argos-configuration>
+
+  <!-- ************************* -->
+  <!-- * General configuration * -->
+  <!-- ************************* -->
+  <framework>
+    <system threads="0" />
+    <experiment length="200"
+                ticks_per_second="10"
+                random_seed="321" />
+  </framework>
+
+  <!-- *************** -->
+  <!-- * Controllers * -->
+  <!-- *************** -->
+  <controllers>
+    <bn_controller id="bn">
+      <actuators>
+        <differential_steering implementation="default" />
+      </actuators>
+      <sensors>
+        <footbot_proximity        implementation="default"    show_rays="true" />
+        <footbot_motor_ground     implementation="rot_z_only" show_rays="false" />
+      </sensors>
+      <params />
+    </bn_controller>
+  </controllers>
+
+  <!-- ****************** -->
+  <!-- * Loop functions * -->
+  <!-- ****************** -->
+  <loop_functions library="build/loop-functions/evolution/libevolution_loop"
+                  label="evolution_loop"/>
+
+
+
+  <!-- *********************** -->
+  <!-- * Arena configuration * -->
+  <!-- *********************** -->
+  <arena size="5,5,3" center="0,0,0">
+      <floor id="floor" source="loop_functions" pixels_per_meter="100" />
+
+      <box id="wall_north" size="6.5,0.1,0.5" movable="false">
+        <body position="0,2.5,0" orientation="0,0,0" />
+      </box>
+      <box id="wall_south" size="6.5,0.1,0.5" movable="false">
+        <body position="0,-2.5,0" orientation="0,0,0" />
+      </box>
+      <box id="wall_east" size="0.1,6.5,0.5" movable="false">
+        <body position="2.5,0,0" orientation="0,0,0" />
+      </box>
+      <box id="wall_west" size="0.1,6.5,0.5" movable="false">
+        <body position="-2.5,0,0" orientation="0,0,0" />
+      </box>
+
+      <!-- If you want to place the robot in a random position you may want to use this piece of code -->
+  <!-- <distribute>
+        <position method="uniform" min="-1.9,-1.9,0" max="1.9,1.9,0" />
+        <orientation method="uniform" min="0,0,0" max="360,0,0" />
+        <entity quantity="1" max_trials="100">
+          <foot-bot id="fb">
+            <controller config="lua" />
+          </foot-bot>
+        </entity>
+      </distribute>-->
+    </arena>
+
+  <!-- ******************* -->
+  <!-- * Physics engines * -->
+  <!-- ******************* -->
+  <physics_engines>
+    <dynamics2d id="dyn2d" />
+  </physics_engines>
+
+  <!-- ********* -->
+  <!-- * Media * -->
+  <!-- ********* -->
+  <media>
+    <led id="leds" />
+  </media>
+
+  <visualization>
+    <!--<qt-opengl>
+      <camera>
+        <placements>
+          <placement index="0" position="-7.5,-7.5,10" look_at="0,0,0" up="0.5,0.5,0" lens_focal_length="65"/>
+          <placement index="1" position="-0.26,-10.57,11.3" look_at="-0.2681,-9.927,10.532" up="0,0.76,0.64" lens_focal_length="65"/>
+        </placements>
+      </camera>
+    </qt-opengl>-->
+  </visualization>
+
+</argos-configuration>
