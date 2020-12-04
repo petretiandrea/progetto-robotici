@@ -30,6 +30,9 @@ ParallelEvaluator::ParallelEvaluator(performance::FileLogger &log, int genomeSiz
     ::sleep(3);
 }
 
+float ParallelEvaluator::best_score = 0;
+GAGenome* ParallelEvaluator::best_genome = nullptr;
+
 void ParallelEvaluator::evaluatePopulation(GAPopulation &population) {
     cout << "Evaluating generation #" << population.geneticAlgorithm()->generation() << endl;
     // load genome to shared memory
@@ -46,7 +49,13 @@ void ParallelEvaluator::evaluatePopulation(GAPopulation &population) {
     for(int i = 0; i < population.size(); i++) {
         auto score = sharedMemory->GetScore(i);
         population.individual(i).score(score);
+        if(score >= best_score) {
+            best_genome = &population.individual(i);
+            best_score = best_genome->score();
+            log.saveGenomeAsBest(*best_genome);
+        }
     }
+    log.saveGenerationPerformance(population);
     cout << "Generation # " << population.geneticAlgorithm()->generation() << " completed!" << endl;
 }
 
@@ -145,23 +154,9 @@ void ParallelEvaluator::waitSlaves() {
     }
 }
 
-float ParallelEvaluator::best_score = 0;
-GAGenome* ParallelEvaluator::best_genome = nullptr;
-
 void ParallelEvaluator::populationEvaluator(GAPopulation &population) {
     auto* evaluator = static_cast<ParallelEvaluator*>(population.userData());
     evaluator->evaluatePopulation(population);
-
-    for(int i = 0; i < population.size(); i++) {
-        auto score = population.individual(i).score();
-        if(score >= best_score) {
-            best_genome = &population.individual(i);
-            best_score = best_genome->score();
-            evaluator->log.saveGenomeAsBest(*best_genome);
-        }
-    }
-
-    evaluator->log.saveGenerationPerformance(population);
 }
 
 ParallelEvaluator::~ParallelEvaluator() {

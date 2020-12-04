@@ -44,6 +44,7 @@ public:
     void ConfigureFromGenome(const string& genome);
 
     double CalculatePerformance();
+    double MaxRobotCount();
 
     void Reset() override;
 

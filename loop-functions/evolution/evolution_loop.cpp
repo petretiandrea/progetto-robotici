@@ -3,6 +3,7 @@
 //
 #include "evolution_loop.h"
 #include <constants.h>
+#include <cmath>
 
 #define KEY_CIRCLE1 "circle1"
 #define KEY_CIRCLE2 "circle2"
@@ -143,6 +144,10 @@ bool EvolutionLoop::CheckCollision(CVector3& position, const std::vector<SInitSe
     return false;
 }
 
+double sigmoid(double x) {
+    return 1.0 / (1.0 + exp(-x));
+}
+
 // TODO: call inside post experiment, at the end of experiment
 double EvolutionLoop::CalculatePerformance() {
     CVector2 botPosition;
@@ -152,6 +157,25 @@ double EvolutionLoop::CalculatePerformance() {
         if(blackCircles[0].containsPoint(botPosition)) botCountForCircle[0] += 1;
         if(blackCircles[1].containsPoint(botPosition)) botCountForCircle[1] += 1;
     }
+    //cout << "Count " << botCountForCircle[0] << " " << botCountForCircle[1] << endl;
+    botCountForCircle[0] /= bots.size();
+    botCountForCircle[1] /= bots.size();
+
+    botCountForCircle[0] = sigmoid(botCountForCircle[0]);
+    botCountForCircle[1] = sigmoid(botCountForCircle[1]);
+
+    return (botCountForCircle[0] > botCountForCircle[1]) ? botCountForCircle[0] : botCountForCircle[1];
+}
+
+double EvolutionLoop::MaxRobotCount() {
+    CVector2 botPosition;
+    double botCountForCircle[] = { 0, 0 };
+    for(auto& bot : bots) {
+        bot->GetEmbodiedEntity().GetOriginAnchor().Position.ProjectOntoXY(botPosition);
+        if(blackCircles[0].containsPoint(botPosition)) botCountForCircle[0] += 1;
+        if(blackCircles[1].containsPoint(botPosition)) botCountForCircle[1] += 1;
+    }
+    cout << "Count " << botCountForCircle[0] << " " << botCountForCircle[1] << endl;
     botCountForCircle[0] /= bots.size();
     botCountForCircle[1] /= bots.size();
 

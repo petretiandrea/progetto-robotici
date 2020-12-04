@@ -18,8 +18,6 @@ void FileLogger::saveGenerationPerformance(GAPopulation& population) {
              << population.individual(i) << ";"
              << endl << flush;
     }
-    // TODO: this provide the best or the best for current population?
-    saveBestOfGeneration(population.geneticAlgorithm()->generation(), population.best(0));
 }
 
 void FileLogger::saveBestOfGeneration(int generation, const GAGenome &genome) {
@@ -44,12 +42,25 @@ void FileLogger::saveGenomeAsBest(GAGenome& genome) {
     bestFile.close();
 }
 
+// TODO: refactor duplicate code
 void FileLogger::saveTrialsPerformance(int trials, double performance[]) {
     ofstream trialsPerformance;
     trialsPerformance.open(folder + metainfo + ".csv");
     trialsPerformance << "trial;performance" << endl;
     for(int i = 0; i < trials; i++) {
         trialsPerformance << i << ";" << performance[i] << endl;
+    }
+    trialsPerformance << flush;
+    trialsPerformance.close();
+}
+
+// TODO: refactor duplicate code
+void FileLogger::saveTrialsPerformance(int trials, double performance[], double robotCount[]) {
+    ofstream trialsPerformance;
+    trialsPerformance.open(folder + metainfo + ".csv");
+    trialsPerformance << "trial;performance;robot_max_count" << endl;
+    for(int i = 0; i < trials; i++) {
+        trialsPerformance << i << ";" << performance[i] << ";" << robotCount[i] << endl;
     }
     trialsPerformance << flush;
     trialsPerformance.close();

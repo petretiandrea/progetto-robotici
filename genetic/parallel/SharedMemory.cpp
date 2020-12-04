@@ -81,7 +81,7 @@ void SharedMemory::SetScore(int individual, float score) {
 void SharedMemory::SetSlice(int runnerId, int startIndex, int size) {
     float* offsetGenomes = (float*) (sharedMem + (populationSize * genomeSize));
     int* ptr = (int*) (offsetGenomes + populationSize);
-    int baseAddr = runnerId * slices;
+    int baseAddr = runnerId * 2;
     ptr[baseAddr] = startIndex;
     ptr[baseAddr + 1] = size;
 }
@@ -89,7 +89,7 @@ void SharedMemory::SetSlice(int runnerId, int startIndex, int size) {
 int* SharedMemory::GetSlice(int runnerId) {
     float* offsetGenomes = (float*) (sharedMem + (populationSize * genomeSize));
     int* ptr = (int*) (offsetGenomes + populationSize);
-    int baseAddr = runnerId * slices;
+    int baseAddr = runnerId * 2;
 
     int* out = new int[2];
     out[0] = ptr[baseAddr];

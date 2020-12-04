@@ -23,6 +23,7 @@ namespace performance {
         void saveGenerationPerformance(GAPopulation& population);
         void saveGenomeAsBest(GAGenome& genome);
         void saveTrialsPerformance(int trials, double performance[]);
+        void saveTrialsPerformance(int trials, double performance[], double robotCount[]);
         void close();
 
     private:

@@ -15,5 +15,5 @@ target_link_libraries(evolution_loop
         argos3plugin_simulator_entities
         argos3plugin_simulator_footbot
         argos3plugin_simulator_genericrobot
-        argos3plugin_simulator_media)
-        # ${GALIB_LIBRARIES}) TODO: really?
+        argos3plugin_simulator_media
+        ${GALIB_LIBRARIES})

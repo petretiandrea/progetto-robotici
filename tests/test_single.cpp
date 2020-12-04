@@ -25,6 +25,7 @@ int main() {
     loop->GenerateRandomSpawnLocation(RUN);
 
     double performance[RUN];
+    double robotMaxCount[RUN];
     for(int i = 0; i < RUN; i++) {
 
         loop->PrepareForTrial(i);
@@ -35,9 +36,10 @@ int main() {
         auto score = loop->CalculatePerformance();
         cout << "Performance " <<  score << endl;
         performance[i] = score;
+        robotMaxCount[i] = loop->MaxRobotCount();
     }
 
-    logger.saveTrialsPerformance(RUN, performance);
+    logger.saveTrialsPerformance(RUN, performance, robotMaxCount);
     logger.close();
 
     simulator.Destroy();
