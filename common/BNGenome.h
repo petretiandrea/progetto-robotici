@@ -15,6 +15,16 @@ extern bool debug;
 
 namespace bngenome {
 
+    class EvaluationData : public GAEvalData {
+    private:
+        int robotMaxCount;
+    public:
+        explicit EvaluationData(int robotMaxCount);
+        GAEvalData *clone() const override;
+        void copy(const GAEvalData &data) override;
+        inline int getRobotMaxCount() const { return robotMaxCount; }
+    };
+
     typedef struct {
         argos::CSimulator* simulator;
         EvolutionLoop* loop;

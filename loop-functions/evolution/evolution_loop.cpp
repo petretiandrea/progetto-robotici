@@ -144,8 +144,16 @@ bool EvolutionLoop::CheckCollision(CVector3& position, const std::vector<SInitSe
     return false;
 }
 
-double sigmoid(double x) {
-    return 1.0 / (1.0 + exp(-x));
+// 1 / ( 1 + e^(-A*(B-x)) )
+/**
+ *
+ * @param x
+ * @param a control the slope
+ * @param b control x axis center flex
+ * @return
+ */
+double parametric_sigmoid(double x, double a, double b) {
+    return 1.0 / (1 + exp(-a *(b - x)));
 }
 
 // TODO: call inside post experiment, at the end of experiment
@@ -161,8 +169,8 @@ double EvolutionLoop::CalculatePerformance() {
     botCountForCircle[0] /= bots.size();
     botCountForCircle[1] /= bots.size();
 
-    botCountForCircle[0] = sigmoid(botCountForCircle[0]);
-    botCountForCircle[1] = sigmoid(botCountForCircle[1]);
+    botCountForCircle[0] = parametric_sigmoid(botCountForCircle[0], constants::SIGMOID_SLOPE, constants::SIGMOID_X);
+    botCountForCircle[1] = parametric_sigmoid(botCountForCircle[1], constants::SIGMOID_SLOPE, constants::SIGMOID_X);
 
     return (botCountForCircle[0] > botCountForCircle[1]) ? botCountForCircle[0] : botCountForCircle[1];
 }

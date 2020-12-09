@@ -36,6 +36,8 @@ GAGenome* ParallelEvaluator::best_genome = nullptr;
 void ParallelEvaluator::evaluatePopulation(GAPopulation &population) {
     cout << "Evaluating generation #" << population.geneticAlgorithm()->generation() << endl;
     // load genome to shared memory
+    cout << "Scaling " << population.scaling().className() << endl;
+    cout << "Selection " << population.selector().className() << endl;
     for(int i = 0; i < population.size(); i++) {
         auto& boolGenome = dynamic_cast<GA1DBinaryStringGenome&>(population.individual(i));
         sharedMemory->SetGenome(i, boolGenome);

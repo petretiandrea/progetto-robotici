@@ -48,3 +48,17 @@ float bngenome::genomeEvaluator(GAGenome& genome) {
     auto avg = (float) (performanceSum / (double) experiment.nTrials);
     return avg;
 }
+
+
+EvaluationData::EvaluationData(int robotMaxCount) : robotMaxCount(robotMaxCount) {}
+
+GAEvalData *EvaluationData::clone() const {
+    return new EvaluationData(this->robotMaxCount);
+}
+
+void EvaluationData::copy(const GAEvalData &data) {
+    auto* realData = dynamic_cast<EvaluationData*>(const_cast<GAEvalData*>(&data));
+    if(realData != nullptr) {
+        this->robotMaxCount = realData->robotMaxCount;
+    }
+}
