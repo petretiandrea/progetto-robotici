@@ -56,3 +56,11 @@ string utility::createMetaInfoFilename() {
             << "_trials" << constants::N_TRIAL;
     return metainfo.str();
 }
+
+ostream& operator <<(ostream& os, GAEvalData& data) {
+    auto* printable = dynamic_cast<Printable*>(&data);
+    if(printable != nullptr) {
+        return printable->print(os);
+    }
+    return os;
+}

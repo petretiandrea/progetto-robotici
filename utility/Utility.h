@@ -11,7 +11,9 @@
 #include <functional>
 #include <cctype>
 #include <locale>
+#include <ga/GAEvalData.h>
 #include "NewRandom.h"
+#include "Printable.h"
 
 using namespace std;
 
@@ -45,4 +47,5 @@ template <class T> std::ostream& operator<<(std::ostream &flux, const vector<T>&
     return flux;
 }
 
+ostream& operator <<(ostream& os, GAEvalData& data);
 #endif

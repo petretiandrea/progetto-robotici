@@ -40,8 +40,15 @@ void ParallelEvaluator::evaluatePopulation(GAPopulation &population) {
     cout << "Selection " << population.selector().className() << endl;
     for(int i = 0; i < population.size(); i++) {
         auto& boolGenome = dynamic_cast<GA1DBinaryStringGenome&>(population.individual(i));
-        sharedMemory->SetGenome(i, boolGenome);
-        sharedMemory->SetScore(i, ParallelEvaluator::EvaluatedHack::isEvaluated(&boolGenome) ? boolGenome.score() : -1);
+        auto* evalData = dynamic_cast<bngenome::CustomEvalData*>(boolGenome.evalData());
+        if(evalData == NULL) {
+            boolGenome.evalData(bngenome::CustomEvalData());
+            evalData = dynamic_cast<bngenome::CustomEvalData*>(boolGenome.evalData());
+        }
+        sharedMemory->SetGenome(i,
+                                boolGenome,
+                                ParallelEvaluator::EvaluatedHack::isEvaluated(&boolGenome) ? boolGenome.score() : -1,
+                                evalData->robotCount);
     }
 
     prepareTaskSlave(population);
@@ -49,8 +56,14 @@ void ParallelEvaluator::evaluatePopulation(GAPopulation &population) {
     waitSlaves();
 
     for(int i = 0; i < population.size(); i++) {
-        auto score = sharedMemory->GetScore(i);
-        population.individual(i).score(score);
+        double score, robotCount;
+        auto& boolGenome = population.individual(i);
+        sharedMemory->GetEvaluation(i, &score, &robotCount);
+
+        // update local genome from parallel computation
+        boolGenome.score((float) score);
+        ((bngenome::CustomEvalData*) boolGenome.evalData())->robotCount = robotCount;
+
         if(score >= best_score) {
             best_genome = &population.individual(i);
             best_score = best_genome->score();
@@ -133,22 +146,24 @@ void ParallelEvaluator::waitSlaves() {
 
     while (true) {
         ::raise(SIGSTOP);
+        cout << " aaa " << endl;
         auto* slices = sharedMemory->GetSlice(slaveId);
         LOG << " Slave " << slaveId << " pid: " << ::getpid() << " slice " << slices[0] << " to " << (slices[0] + slices[1]) << " size: " << slices[1] << endl;
 
         for(int i = slices[0]; i < slices[0] + slices[1]; i++) {
-            GA1DBinaryStringGenome* genome = sharedMemory->GetGenome(i);
-            genome->userData(&experiment);
+            auto& genomeData = sharedMemory->GetGenome(i);
+            GA1DBinaryStringGenome genome(genomeData.genomeSize);
+            genome = genome.operator=(genomeData.genome);
+            genome.evalData(bngenome::CustomEvalData());
+            genome.userData(&experiment);
 
-            bool needEvaluation = sharedMemory->GetScore(i) == -1;
+            bool needEvaluation = genomeData.fitness == -1;
             if(needEvaluation) {
-                auto performance = bngenome::genomeEvaluator(*genome);
-                sharedMemory->SetScore(i, performance);
+                auto performance = bngenome::genomeEvaluator(genome);
+                auto robotCount = ((bngenome::CustomEvalData*) genome.evalData())->robotCount;
+                sharedMemory->UpdateEvaluation(i, performance, robotCount);
             }
-
             //LOG << "Slave " << slaveId << " Perf " << sharedMemory->GetScore(i) << " gen " << *genome << endl;
-
-            delete genome;
         }
         delete[] slices;
         LOG.Flush();

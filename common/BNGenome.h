@@ -10,20 +10,12 @@
 #include <utility/NewRandom.h>
 #include <argos3/core/simulator/simulator.h>
 #include <loop-functions/evolution/evolution_loop.h>
+#include <ostream>
+#include <utility/Printable.h>
 
 extern bool debug;
 
 namespace bngenome {
-
-    class EvaluationData : public GAEvalData {
-    private:
-        int robotMaxCount;
-    public:
-        explicit EvaluationData(int robotMaxCount);
-        GAEvalData *clone() const override;
-        void copy(const GAEvalData &data) override;
-        inline int getRobotMaxCount() const { return robotMaxCount; }
-    };
 
     typedef struct {
         argos::CSimulator* simulator;
@@ -36,6 +28,29 @@ namespace bngenome {
 
     static function<void(GAGenome&)> functionInitializerCallback;
     static void initializer(GAGenome& genome) { functionInitializerCallback(genome); }
+
+
+    class CustomEvalData : public GAEvalData, public Printable {
+        public:
+            double robotCount;
+        public:
+            CustomEvalData() : robotCount(0) {}
+            explicit CustomEvalData(double robotCount) : robotCount(robotCount) {}
+            ~CustomEvalData() override = default;
+
+            GAEvalData *clone() const override {
+                return new CustomEvalData(this->robotCount);
+            }
+            void copy(const GAEvalData &data) override {
+                const auto& customData = dynamic_cast<const CustomEvalData*>(&data);
+                this->robotCount = customData->robotCount;
+            }
+
+        ostream &print(ostream &os) override {
+            os << this->robotCount;
+            return os;
+        }
+    };
 }
 
 #endif //SWARM_GEN_BNGENOME_H

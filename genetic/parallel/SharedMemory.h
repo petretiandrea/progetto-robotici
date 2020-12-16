@@ -23,29 +23,35 @@
 class SharedMemory {
 
 public:
+    struct GenomeData {
+        short* genome;
+        int genomeSize;
+        double fitness;
+        double robotCount;
+    };
+
+public:
 
     SharedMemory(const char* sharedMemoryFile,
                  int genomeSize,
                  int populationSize,
-                 int slices);
+                 int parallelProcess);
 
     ~SharedMemory();
 
-    GA1DBinaryStringGenome* GetGenome(int individual);
-
+    GenomeData& GetGenome(int individual);
     void SetGenome(int individual,
-                   const GA1DBinaryStringGenome& genome);
-
-    float GetScore(int individual);
-
-    void SetScore(int individual,
-                  float score);
+                   const GA1DBinaryStringGenome& genome,
+                   double score,
+                   double robotCount);
+    void UpdateEvaluation(int individual, double score, double robotCount);
+    void GetEvaluation(int individual, double* score, double* robotCount);
 
     void SetSlice(int runnerId, int startIndex, int size);
     int* GetSlice(int runnerId);
 
 private:
-    int slices;
+    int parallelProcess;
     int genomeSize;
     int populationSize;
     int sharedMemFD;

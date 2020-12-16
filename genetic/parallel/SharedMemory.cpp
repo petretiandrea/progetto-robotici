@@ -4,11 +4,11 @@
 
 #include "SharedMemory.h"
 
-SharedMemory::SharedMemory(const char *sharedMemoryFile, int genomeSize, int populationSize, int slices) :
+SharedMemory::SharedMemory(const char *sharedMemoryFile, int genomeSize, int populationSize, int parallelProcess) :
         sharedMemFile(sharedMemoryFile),
         genomeSize(genomeSize),
         populationSize(populationSize),
-        slices(slices)
+        parallelProcess(parallelProcess)
 {
     sharedMemFD = ::shm_open(sharedMemoryFile,
                              O_RDWR | O_CREAT,
@@ -24,9 +24,12 @@ SharedMemory::SharedMemory(const char *sharedMemoryFile, int genomeSize, int pop
      * Scores[] ...
      * Slices[] ...
      */
-    memorySize = populationSize * (genomeSize * sizeof(short)) + // genomes
-                 populationSize * (genomeSize * sizeof(float)) + // scores
-                 slices * (2 * sizeof(int)); // slices
+     // total genome required memory
+    auto genomeMemorySize = populationSize * (genomeSize * sizeof(short));
+    auto structMemorySize = populationSize * (sizeof(GenomeData));
+    auto parallelProcessMemory = parallelProcess * (2 * sizeof(int));
+
+    memorySize = genomeMemorySize + structMemorySize + parallelProcessMemory;
 
     ::ftruncate(sharedMemFD, memorySize);
 
@@ -45,54 +48,75 @@ SharedMemory::SharedMemory(const char *sharedMemoryFile, int genomeSize, int pop
 
 }
 
-
 SharedMemory::~SharedMemory() {
     munmap(sharedMem, memorySize);
     close(sharedMemFD);
     shm_unlink(sharedMemFile);
 }
 
-GA1DBinaryStringGenome* SharedMemory::GetGenome(int individual) {
-    auto* genome = new GA1DBinaryStringGenome(genomeSize);
-    short* ptr = sharedMem + (individual * genomeSize);
-    for(int i = 0; i < genome->size(); i++) {
-        genome->gene(i, ptr[i]);
-    }
-    return genome;
+SharedMemory::GenomeData& SharedMemory::GetGenome(int individual) {
+    auto* structs = (GenomeData*) sharedMem;
+    return structs[individual];
 }
 
-void SharedMemory::SetGenome(int individual, const GA1DBinaryStringGenome& genome) {
-    short* ptr = sharedMem + (individual * genomeSize);
+void SharedMemory::UpdateEvaluation(int individual, double score, double robotCount) {
+    auto* structs = (GenomeData*) sharedMem;
+
+    structs[individual].fitness = score;
+    structs[individual].robotCount = robotCount;
+}
+
+void SharedMemory::GetEvaluation(int individual, double *score, double *robotCount) {
+    auto* structs = (GenomeData*) sharedMem;
+
+    *score = structs[individual].fitness;
+    *robotCount = structs[individual].robotCount;
+}
+
+
+void printData(SharedMemory::GenomeData& data) {
+    std::cout << "Size " << data.genomeSize << " Fit " << data.fitness << " count " << data.robotCount;
+    std::cout << " genome: ";
+    for(int i = 0; i < data.genomeSize; i++) {
+        std::cout << data.genome[i];
+    }
+    std::cout << std::endl;
+}
+
+void SharedMemory::SetGenome(int individual, const GA1DBinaryStringGenome& genome, double score, double robotCount) {
+    auto* structs = (GenomeData*) sharedMem;
+    auto* genomes = (short*) (structs + populationSize);
+    short* genomePtr = genomes + (individual * genomeSize);
+
+    structs[individual].genome = genomePtr;
+    structs[individual].fitness = score;
+    structs[individual].robotCount = robotCount;
+    structs[individual].genomeSize = genomeSize;
+
     for(int i = 0; i < genome.size(); i++) {
-        ptr[i] = genome.gene(i);
+        genomePtr[i] = genome.gene(i);
     }
-}
-
-float SharedMemory::GetScore(int individual) {
-    float* ptr = (float*) (sharedMem + (populationSize * genomeSize));
-    return ptr[individual];
-}
-
-void SharedMemory::SetScore(int individual, float score) {
-    float* ptr = (float*) (sharedMem + (populationSize * genomeSize));
-    ptr[individual] = score;
+    //printData(structs[individual]);
 }
 
 void SharedMemory::SetSlice(int runnerId, int startIndex, int size) {
-    float* offsetGenomes = (float*) (sharedMem + (populationSize * genomeSize));
-    int* ptr = (int*) (offsetGenomes + populationSize);
-    int baseAddr = runnerId * 2;
-    ptr[baseAddr] = startIndex;
-    ptr[baseAddr + 1] = size;
+    auto* structs = (GenomeData*) sharedMem;
+    auto* genomes = (short*) (structs + populationSize);
+    auto* sliceSpace = (int*) (genomes + (populationSize * genomeSize));
+    int index = runnerId * 2;
+
+    sliceSpace[index] = startIndex;
+    sliceSpace[index + 1] = size;
 }
 
 int* SharedMemory::GetSlice(int runnerId) {
-    float* offsetGenomes = (float*) (sharedMem + (populationSize * genomeSize));
-    int* ptr = (int*) (offsetGenomes + populationSize);
-    int baseAddr = runnerId * 2;
+    auto* structs = (GenomeData*) sharedMem;
+    auto* genomes = (short*) (structs + populationSize);
+    auto* sliceSpace = (int*) (genomes + (populationSize * genomeSize));
+    int index = runnerId * 2;
 
     int* out = new int[2];
-    out[0] = ptr[baseAddr];
-    out[1] = ptr[baseAddr + 1];
+    out[0] = sliceSpace[index];
+    out[1] = sliceSpace[index + 1];
     return out;
 }

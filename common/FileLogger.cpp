@@ -3,18 +3,20 @@
 //
 
 #include "FileLogger.h"
+#include <utility/Utility.h>
 
 using namespace performance;
 
 FileLogger::FileLogger(string folder, const string& fileMetaInfo) : folder(std::move(folder)), metainfo(fileMetaInfo) {
     file.open(this->folder + fileMetaInfo + ".csv");
-    file << "generation;score;genome;bn" << endl << flush;
+    file << "generation;score;extra;genome;bn" << endl << flush;
 }
 
 void FileLogger::saveGenerationPerformance(GAPopulation& population) {
     for(int i = 0; i < population.size(); i++) {
         file << population.geneticAlgorithm()->generation() << ";"
              << population.individual(i).score() << ";"
+             << *population.individual(i).evalData() << ";"
              << population.individual(i) << ";"
              << endl << flush;
     }
@@ -36,9 +38,9 @@ void FileLogger::close() {
 void FileLogger::saveGenomeAsBest(GAGenome& genome) {
     ofstream bestFile;
     bestFile.open(folder + metainfo + "_best_all.csv");
-    bestFile << "score;genome;bn" << endl;
+    bestFile << "score;extra;genome;bn" << endl;
     cout << genome.score() << endl;
-    bestFile << genome.score() << ";" << genome << endl << flush;
+    bestFile << genome.score() << ";" << *genome.evalData() << ";" << genome << ";" << endl << flush;
     bestFile.close();
 }
 

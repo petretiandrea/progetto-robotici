@@ -14,6 +14,7 @@ GAGenome::Initializer bngenome::genomeInitializer(float bias, newrandom::Random 
         for(int i = 0; i < arrayGenome.size(); i++) {
             arrayGenome.gene(i, initializer());
         }
+        arrayGenome.evalData(CustomEvalData()); // set empty eval data
     };
     return initializer;
 }
@@ -23,8 +24,10 @@ bool debug = false;
 float bngenome::genomeEvaluator(GAGenome& genome) {
     auto& boolGenome = dynamic_cast<GA1DBinaryStringGenome&>(genome);
     auto& experiment = *static_cast<Experiment*>(boolGenome.userData());
+    auto* evalData = dynamic_cast<CustomEvalData*>(boolGenome.evalData());
 
     double performanceSum = 0;
+    double robotCount = 0;
     experiment.loop->ConfigureFromGenome(boolGenome);
 
     for (int i = 0; i < experiment.nTrials; i++) {
@@ -43,22 +46,11 @@ float bngenome::genomeEvaluator(GAGenome& genome) {
         auto performance = experiment.loop->CalculatePerformance();
         //std::cout << " performance: "<< performance << std::endl;
         performanceSum += performance;
+        robotCount += experiment.loop->MaxRobotCount();
     }
 
-    auto avg = (float) (performanceSum / (double) experiment.nTrials);
-    return avg;
-}
+    evalData->robotCount = robotCount / (double) experiment.nTrials;
 
-
-EvaluationData::EvaluationData(int robotMaxCount) : robotMaxCount(robotMaxCount) {}
-
-GAEvalData *EvaluationData::clone() const {
-    return new EvaluationData(this->robotMaxCount);
-}
-
-void EvaluationData::copy(const GAEvalData &data) {
-    auto* realData = dynamic_cast<EvaluationData*>(const_cast<GAEvalData*>(&data));
-    if(realData != nullptr) {
-        this->robotMaxCount = realData->robotMaxCount;
-    }
+    std::cout << "Avg robot count "  << evalData->robotCount << " for " << boolGenome << std::endl;
+    return (float) (performanceSum / (double) experiment.nTrials);
 }
